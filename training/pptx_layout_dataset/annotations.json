@@ -1,0 +1,1876 @@
+{
+  "classes": [
+    {
+      "id": 0,
+      "name": "block"
+    },
+    {
+      "id": 1,
+      "name": "major_column"
+    },
+    {
+      "id": 2,
+      "name": "subcolumn"
+    }
+  ],
+  "records": [
+    {
+      "slide": 1,
+      "image": "page_0003.jpg",
+      "split": "train",
+      "width": 2095,
+      "height": 1797,
+      "annotations": [
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            1812,
+            73,
+            2036,
+            732
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            1812,
+            736,
+            2036,
+            1712
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            1094,
+            732,
+            1812,
+            1712
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            1092,
+            73,
+            1811,
+            732
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            59,
+            62,
+            1017,
+            721
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            58,
+            721,
+            1017,
+            1712
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1712,
+            73,
+            1813,
+            734
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1603,
+            67,
+            1704,
+            727
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1508,
+            68,
+            1608,
+            729
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1404,
+            70,
+            1504,
+            731
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1297,
+            70,
+            1397,
+            731
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1193,
+            70,
+            1294,
+            731
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1095,
+            67,
+            1196,
+            727
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1924,
+            731,
+            2025,
+            1711
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1824,
+            731,
+            1924,
+            1711
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1705,
+            724,
+            1806,
+            1705
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1765,
+            1056,
+            1817,
+            1455
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1712,
+            1056,
+            1764,
+            1455
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1758,
+            525,
+            1811,
+            725
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1710,
+            528,
+            1762,
+            729
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1662,
+            129,
+            1708,
+            727
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1609,
+            131,
+            1666,
+            729
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            902,
+            70,
+            1006,
+            731
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            795,
+            70,
+            899,
+            731
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            691,
+            70,
+            795,
+            731
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            594,
+            67,
+            698,
+            727
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            476,
+            62,
+            580,
+            723
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            369,
+            62,
+            472,
+            723
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            265,
+            62,
+            369,
+            723
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            167,
+            59,
+            271,
+            719
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            476,
+            721,
+            580,
+            1713
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            369,
+            721,
+            472,
+            1713
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            265,
+            721,
+            369,
+            1713
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            167,
+            718,
+            271,
+            1710
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            901,
+            718,
+            1013,
+            1711
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            794,
+            729,
+            906,
+            1711
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            690,
+            718,
+            802,
+            1711
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            592,
+            723,
+            693,
+            1708
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            57,
+            718,
+            161,
+            1710
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            59,
+            59,
+            163,
+            719
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1196,
+            731,
+            1287,
+            1723
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1076,
+            731,
+            1200,
+            1723
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1608,
+            728,
+            1709,
+            1717
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1501,
+            738,
+            1613,
+            1712
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1398,
+            728,
+            1510,
+            1721
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1300,
+            732,
+            1401,
+            1717
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1350,
+            126,
+            1397,
+            724
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1298,
+            128,
+            1355,
+            726
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            218,
+            128,
+            264,
+            726
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            165,
+            129,
+            222,
+            727
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            536,
+            915,
+            574,
+            1128
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            483,
+            917,
+            531,
+            1129
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1560,
+            193,
+            1606,
+            284
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1507,
+            195,
+            1564,
+            286
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1247,
+            126,
+            1293,
+            340
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1194,
+            128,
+            1251,
+            342
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1147,
+            270,
+            1194,
+            484
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1095,
+            272,
+            1152,
+            486
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1451,
+            454,
+            1497,
+            726
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1398,
+            455,
+            1456,
+            727
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            958,
+            390,
+            1012,
+            717
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            899,
+            391,
+            959,
+            719
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            852,
+            112,
+            907,
+            440
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            794,
+            113,
+            854,
+            441
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            747,
+            265,
+            802,
+            469
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            688,
+            267,
+            749,
+            471
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            638,
+            465,
+            693,
+            597
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            580,
+            466,
+            640,
+            599
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            429,
+            403,
+            484,
+            535
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            370,
+            404,
+            431,
+            537
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            314,
+            273,
+            367,
+            717
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            265,
+            275,
+            318,
+            721
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1661,
+            1056,
+            1713,
+            1525
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1608,
+            1056,
+            1660,
+            1525
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1557,
+            987,
+            1609,
+            1717
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1504,
+            987,
+            1557,
+            1717
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            953,
+            984,
+            1006,
+            1714
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            901,
+            984,
+            953,
+            1714
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            744,
+            981,
+            796,
+            1711
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            691,
+            981,
+            743,
+            1711
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            637,
+            915,
+            689,
+            1708
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            584,
+            915,
+            636,
+            1708
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            851,
+            912,
+            903,
+            1532
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            798,
+            912,
+            851,
+            1532
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1453,
+            778,
+            1506,
+            1259
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1401,
+            778,
+            1453,
+            1259
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1148,
+            987,
+            1200,
+            1415
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1095,
+            987,
+            1148,
+            1415
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            423,
+            990,
+            475,
+            1260
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            370,
+            990,
+            422,
+            1260
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            316,
+            987,
+            368,
+            1128
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            263,
+            987,
+            315,
+            1128
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            214,
+            990,
+            266,
+            1131
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            161,
+            990,
+            213,
+            1131
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            112,
+            990,
+            164,
+            1131
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            59,
+            990,
+            111,
+            1131
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            119,
+            126,
+            165,
+            724
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            66,
+            128,
+            123,
+            726
+          ]
+        }
+      ]
+    },
+    {
+      "slide": 2,
+      "image": "page_0004.jpg",
+      "split": "val",
+      "width": 2095,
+      "height": 1743,
+      "annotations": [
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            1086,
+            66,
+            2016,
+            705
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            1086,
+            705,
+            2016,
+            1664
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            61,
+            63,
+            990,
+            722
+          ]
+        },
+        {
+          "class_id": 0,
+          "class_name": "block",
+          "bbox": [
+            56,
+            710,
+            986,
+            1669
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            473,
+            709,
+            573,
+            1671
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            369,
+            709,
+            470,
+            1671
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            268,
+            709,
+            369,
+            1671
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            174,
+            706,
+            274,
+            1668
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            885,
+            706,
+            994,
+            1669
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            781,
+            716,
+            890,
+            1669
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            586,
+            710,
+            684,
+            1666
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            67,
+            706,
+            167,
+            1668
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1491,
+            711,
+            1584,
+            1673
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1387,
+            711,
+            1488,
+            1673
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1286,
+            711,
+            1387,
+            1673
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1192,
+            708,
+            1292,
+            1669
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1903,
+            708,
+            2012,
+            1671
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1799,
+            718,
+            1908,
+            1671
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1585,
+            712,
+            1701,
+            1667
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1085,
+            708,
+            1185,
+            1669
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1694,
+            704,
+            1802,
+            1673
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            680,
+            704,
+            781,
+            1666
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            467,
+            60,
+            567,
+            716
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            363,
+            60,
+            463,
+            716
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            262,
+            60,
+            363,
+            716
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            167,
+            57,
+            268,
+            713
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            879,
+            57,
+            987,
+            714
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            775,
+            67,
+            884,
+            717
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            569,
+            61,
+            677,
+            713
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            61,
+            57,
+            161,
+            713
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            674,
+            55,
+            775,
+            711
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1494,
+            54,
+            1594,
+            710
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1390,
+            54,
+            1491,
+            710
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1289,
+            54,
+            1390,
+            710
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1195,
+            51,
+            1295,
+            707
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1911,
+            51,
+            2015,
+            707
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1802,
+            61,
+            1911,
+            711
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1595,
+            55,
+            1705,
+            707
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1088,
+            51,
+            1188,
+            707
+          ]
+        },
+        {
+          "class_id": 1,
+          "class_name": "major_column",
+          "bbox": [
+            1701,
+            49,
+            1802,
+            705
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1959,
+            125,
+            2004,
+            706
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1908,
+            127,
+            1964,
+            707
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1546,
+            122,
+            1591,
+            702
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1495,
+            124,
+            1550,
+            704
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1442,
+            124,
+            1487,
+            704
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1391,
+            125,
+            1446,
+            706
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1344,
+            121,
+            1389,
+            701
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1293,
+            122,
+            1349,
+            702
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1242,
+            119,
+            1287,
+            699
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1191,
+            121,
+            1247,
+            701
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            731,
+            122,
+            776,
+            702
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            680,
+            124,
+            735,
+            704
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            621,
+            124,
+            666,
+            704
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            570,
+            125,
+            625,
+            706
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            522,
+            121,
+            571,
+            711
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            469,
+            122,
+            522,
+            713
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            426,
+            124,
+            475,
+            714
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            368,
+            125,
+            426,
+            716
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            319,
+            122,
+            368,
+            713
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            261,
+            124,
+            319,
+            714
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            116,
+            121,
+            165,
+            711
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            58,
+            122,
+            116,
+            713
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            833,
+            324,
+            882,
+            710
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            776,
+            325,
+            833,
+            711
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            223,
+            325,
+            265,
+            711
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            165,
+            327,
+            223,
+            713
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1142,
+            260,
+            1191,
+            702
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1084,
+            262,
+            1141,
+            704
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1650,
+            249,
+            1699,
+            695
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1592,
+            251,
+            1650,
+            697
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1644,
+            764,
+            1693,
+            1662
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1586,
+            765,
+            1643,
+            1664
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1748,
+            896,
+            1798,
+            1664
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1694,
+            897,
+            1748,
+            1665
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1849,
+            888,
+            1899,
+            964
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1796,
+            888,
+            1846,
+            964
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1852,
+            1213,
+            1902,
+            1289
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1799,
+            1213,
+            1849,
+            1289
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1954,
+            828,
+            2004,
+            903
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1902,
+            828,
+            1951,
+            903
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1539,
+            767,
+            1589,
+            964
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1487,
+            767,
+            1536,
+            964
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1755,
+            103,
+            1804,
+            299
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            1702,
+            103,
+            1752,
+            299
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            929,
+            118,
+            978,
+            194
+          ]
+        },
+        {
+          "class_id": 2,
+          "class_name": "subcolumn",
+          "bbox": [
+            876,
+            118,
+            926,
+            194
+          ]
+        }
+      ]
+    }
+  ]
+}

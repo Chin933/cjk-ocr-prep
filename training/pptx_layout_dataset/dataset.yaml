@@ -1,0 +1,8 @@
+path: D:\Programs\OCR\training\pptx_layout_dataset
+train: images/train
+val: images/val
+nc: 3
+names:
+  0: block
+  1: major_column
+  2: subcolumn

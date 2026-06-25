@@ -1,0 +1,24 @@
+﻿__pycache__/
+*.py[cod]
+*.cache
+
+# Runtime and experiment artifacts
+output/
+runs/
+training/runs/
+training/debug/
+training/generated_projection/
+datasets/coco8/
+
+# Large local training images and legacy labels
+training/images/
+training/labels/
+
+# Downloaded/generated model weights
+*.pt
+models/paddlex/
+
+# Local notebooks and environment noise
+.ipynb_checkpoints/
+.venv/
+venv/
