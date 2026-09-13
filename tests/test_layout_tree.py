@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw
 
-from digitalization import detect_layout, detect_rule_graph
+from digitalization import Box, LayoutConfig, LayoutNode, detect_layout, detect_rule_graph
+from digitalization.layout import _binarize, _split_partial_subcolumns
 
 
 def _synthetic_page() -> Image.Image:
@@ -29,7 +30,8 @@ def test_detects_pages_and_stable_reading_order() -> None:
     assert orders == list(range(len(orders)))
     # The right page is traversed before the left page.
     assert result.reading_order[0].bbox.x1 >= 300
-    assert result.reading_order[-1].bbox.x2 <= 300
+    # The ruled but content-free left page contributes no reading item.
+    assert all(node.bbox.x1 >= 300 for node in result.reading_order)
 
 
 def test_serialization_contains_tree_and_order() -> None:
@@ -74,3 +76,48 @@ def test_rule_graph_retains_partial_line_extents_and_junctions() -> None:
         for segment in graph.horizontal
     )
     assert graph.to_dict()["junctions"]
+
+
+def test_local_2d_support_recovers_short_nested_subcolumns() -> None:
+    image = Image.new("RGB", (100, 500), "white")
+    draw = ImageDraw.Draw(image)
+    # A normal centered passage above and below a short, genuinely two-lane
+    # passage.  The local structure must not be averaged over the full column.
+    for y in (25, 75, 375, 425):
+        draw.rectangle((32, y, 68, y + 28), fill="black")
+    for x in (12, 60):
+        for y in (155, 200, 245):
+            draw.rectangle((x, y, x + 27, y + 27), fill="black")
+
+    binary = _binarize(image)
+    node = LayoutNode("region_test", "region", Box(0, 0, 100, 500))
+    counter = iter(range(100))
+    split = _split_partial_subcolumns(
+        node,
+        binary,
+        binary,
+        node.bbox,
+        LayoutConfig(),
+        900,
+        lambda prefix: f"{prefix}_{next(counter)}",
+    )
+
+    assert split
+    nested = [child for band in node.children for child in band.children]
+    assert len(nested) >= 2
+    assert any("partial_subcolumn_alignment" in child.evidence for child in nested)
+
+
+def test_portrait_center_rule_is_not_mistaken_for_a_book_gutter() -> None:
+    image = Image.new("RGB", (500, 800), "white")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((30, 30, 470, 770), outline="black", width=5)
+    draw.line((250, 30, 250, 770), fill="black", width=5)
+    for x in (80, 160, 310, 390):
+        for y in range(80, 720, 55):
+            draw.rectangle((x, y, x + 24, y + 30), fill="black")
+
+    result = detect_layout(image)
+
+    assert len(result.root.children) == 1
+    assert result.root.children[0].kind == "page"

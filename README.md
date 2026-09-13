@@ -82,6 +82,9 @@ The current development version combines:
 - inferred column pitch when scan damage removes alternating rules
 - page-wide alignment guides shared across upper and lower sections
 - local detection of passages that change from one major column to two small columns
+- glyph-support intersection and connected-component topology for short local subcolumns
+- page-shape gating so a portrait centre rule is not mistaken for a two-page gutter
+- content classification that separates thin spanning rules from actual text ink
 - strict local horizontal separators inside narrow columns
 - sparse-layout pitch recovery for unusually wide two- or three-column bands
 - recursive horizontal and vertical partitioning
@@ -93,7 +96,7 @@ It is not part of the production detector.
 ## Development status
 
 Version `1.1.0.dev0` is an active layout-tree prototype. The two-page seed
-benchmark currently reaches 97.69% pairwise reading-order accuracy. See
+benchmark currently reaches 98.79% pairwise reading-order accuracy. See
 [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for metrics, limitations, and the
 pseudo-label/review loop used to expand the benchmark without drawing every
 box manually.

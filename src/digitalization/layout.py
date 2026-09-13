@@ -327,6 +327,12 @@ def _spread_cut(
 ) -> int | None:
     crop = binary[frame.y1 : frame.y2, frame.x1 : frame.x2]
     height, width = crop.shape
+    # A centre rule inside a portrait page is a column boundary, not a book
+    # gutter.  Page topology must be established before interpreting local
+    # separators; otherwise a single ruled page is irreversibly split into two
+    # independent reading sequences.
+    if width / max(height, 1) < config.spread_min_aspect:
+        return None
     profile = _line_profile(crop, "x", 0.55)
     candidates = []
     for start, end in _runs(profile >= 0.35, merge_gap=5):
@@ -479,7 +485,7 @@ def _text_alignment_boundaries(
         cv2.MORPH_RECT, (max(24, int(width * 0.22)), 1)
     )
     vertical_kernel = cv2.getStructuringElement(
-        cv2.MORPH_RECT, (1, max(24, int(height * 0.22)))
+        cv2.MORPH_RECT, (1, max(24, int(height * 0.12)))
     )
     rules = cv2.bitwise_or(
         cv2.morphologyEx(crop, cv2.MORPH_OPEN, horizontal_kernel),
@@ -601,7 +607,48 @@ def _leaf_kind(crop: np.ndarray, config: LayoutConfig) -> NodeKind:
     rim_y = max(1, int(crop.shape[0] * 0.015))
     rim_x = max(1, int(crop.shape[1] * 0.03))
     inner = crop[rim_y:-rim_y or None, rim_x:-rim_x or None]
-    density = float((inner > 0).mean()) if inner.size else 0.0
+    if not inner.size:
+        return "empty"
+    height, width = inner.shape
+    horizontal_candidates = cv2.morphologyEx(
+        inner,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(
+            cv2.MORPH_RECT, (max(24, int(width * 0.55)), 1)
+        ),
+    )
+    vertical_candidates = cv2.morphologyEx(
+        inner,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(
+            cv2.MORPH_RECT, (1, max(24, int(height * 0.35)))
+        ),
+    )
+    rule_mask = np.zeros_like(inner)
+    for candidates, axis in (
+        (horizontal_candidates, "y"),
+        (vertical_candidates, "x"),
+    ):
+        count, labels, stats, _ = cv2.connectedComponentsWithStats(
+            (candidates > 0).astype(np.uint8), connectivity=8
+        )
+        for index in range(1, count):
+            component_width = int(stats[index, cv2.CC_STAT_WIDTH])
+            component_height = int(stats[index, cv2.CC_STAT_HEIGHT])
+            if axis == "y":
+                is_rule = (
+                    component_width >= width * 0.75
+                    and component_height <= max(4, height * 0.05)
+                )
+            else:
+                is_rule = (
+                    component_height >= height * 0.75
+                    and component_width <= max(4, width * 0.05)
+                )
+            if is_rule:
+                rule_mask[labels == index] = 255
+    content = cv2.subtract(inner, rule_mask)
+    density = float((content > 0).mean())
     return "text" if density >= config.min_text_density else "empty"
 
 
@@ -639,20 +686,135 @@ def _split_partial_subcolumns(
     left_ink = profiles[:, int(width * 0.08) : int(width * 0.42)].mean(axis=1)
     right_ink = profiles[:, int(width * 0.58) : int(width * 0.92)].mean(axis=1)
     side_ink = (left_ink + right_ink) / 2
-    active = (
-        (np.minimum(left_ink, right_ink) > 0.06)
-        & (center_ink / np.maximum(side_ink, 1e-6) < 0.68)
+    center_ratio = center_ink / np.maximum(side_ink, 1e-6)
+    dual_seed = (
+        (np.minimum(left_ink, right_ink) > 0.04) & (center_ratio < 0.90)
     ).astype(np.uint8)
+
+    # Blank rows are not evidence that a two-lane structure ended.  We keep a
+    # third, unknown state and propagate the nearest confident state through
+    # whitespace.  Only centered, ink-rich single-lane evidence can terminate
+    # a two-lane band.
+    single_seed = ((center_ink > 0.055) & (center_ratio > 1.15)).astype(np.uint8)
 
     run_length = max(70, int(width * 0.78))
     kernel = np.ones((run_length, 1), np.uint8)
-    active = cv2.morphologyEx(active.reshape(-1, 1), cv2.MORPH_CLOSE, kernel)
-    active = cv2.morphologyEx(active, cv2.MORPH_OPEN, kernel).ravel()
+    dual_seed = cv2.morphologyEx(
+        dual_seed.reshape(-1, 1), cv2.MORPH_CLOSE, kernel
+    )
+    dual_seed = cv2.morphologyEx(dual_seed, cv2.MORPH_OPEN, kernel).ravel() > 0
+    single_seed = cv2.morphologyEx(
+        single_seed.reshape(-1, 1), cv2.MORPH_CLOSE, kernel
+    )
+    single_seed = cv2.morphologyEx(single_seed, cv2.MORPH_OPEN, kernel).ravel() > 0
+
+    states = np.zeros(height, dtype=np.int8)
+    states[single_seed] = -1
+    states[dual_seed] = 1
+    known = np.flatnonzero(states)
+    if known.size == 0:
+        return False
+    left_known = np.maximum.accumulate(
+        np.where(states != 0, np.arange(height), -height)
+    )
+    right_known = np.minimum.accumulate(
+        np.where(states != 0, np.arange(height), height)[::-1]
+    )[::-1]
+    for row in np.flatnonzero(states == 0):
+        left = left_known[row]
+        right = right_known[row]
+        if left < 0:
+            states[row] = states[right]
+        elif right >= height:
+            states[row] = states[left]
+        else:
+            states[row] = states[left if row - left <= right - row else right]
+
     runs = [
         (start, end)
-        for start, end in _runs(active > 0, merge_gap=max(8, width // 8))
+        for start, end in _runs(states > 0, merge_gap=max(8, width // 8))
         if end - start >= run_length
     ]
+
+    # The state signal above answers whether a passage is plausibly dual-lane,
+    # but its deliberately propagated unknown rows make its vertical bounds
+    # coarse.  Recover the actual 2-D support from glyph ink after removing
+    # long rules: a subcolumn band exists only while *both* half-lanes carry
+    # text.  This also exposes short nested passages that a long sliding
+    # profile averages away.
+    vertical_kernel = cv2.getStructuringElement(
+        cv2.MORPH_RECT, (1, max(40, int(width * 0.80)))
+    )
+    vertical_rules = cv2.morphologyEx(crop, cv2.MORPH_OPEN, vertical_kernel)
+    glyphs = cv2.subtract(crop, vertical_rules)
+    left_rows = (
+        (glyphs[:, int(width * 0.05) : int(width * 0.46)] > 0).mean(axis=1)
+        > 0.018
+    ).astype(np.uint8)
+    right_rows = (
+        (glyphs[:, int(width * 0.54) : int(width * 0.95)] > 0).mean(axis=1)
+        > 0.018
+    ).astype(np.uint8)
+    bridge = np.ones((max(15, int(width * 0.32)), 1), np.uint8)
+    minimum = np.ones((max(9, int(width * 0.14)), 1), np.uint8)
+    left_rows = cv2.morphologyEx(left_rows.reshape(-1, 1), cv2.MORPH_CLOSE, bridge)
+    right_rows = cv2.morphologyEx(right_rows.reshape(-1, 1), cv2.MORPH_CLOSE, bridge)
+    left_rows = cv2.morphologyEx(left_rows, cv2.MORPH_OPEN, minimum).ravel() > 0
+    right_rows = cv2.morphologyEx(right_rows, cv2.MORPH_OPEN, minimum).ravel() > 0
+    local_runs = []
+    for start, end in _runs(
+        left_rows & right_rows, merge_gap=max(8, int(width * 0.22))
+    ):
+        if end - start < max(35, int(width * 0.55)):
+            continue
+        x_profile = (glyphs[start:end] > 0).mean(axis=0)
+        local_center = x_profile[int(width * 0.35) : int(width * 0.65)]
+        local_sides = np.concatenate(
+            [
+                x_profile[int(width * 0.05) : int(width * 0.35)],
+                x_profile[int(width * 0.65) : int(width * 0.95)],
+            ]
+        )
+        valley_ratio = float(np.percentile(local_center, 20)) / max(
+            float(np.percentile(local_sides, 70)), 1e-6
+        )
+        center_slice = x_profile[int(width * 0.35) : int(width * 0.65)]
+        valley = int(width * 0.35) + int(np.argmin(center_slice))
+        component_mask = cv2.morphologyEx(
+            (glyphs[start:end] > 0).astype(np.uint8),
+            cv2.MORPH_CLOSE,
+            np.ones((3, 3), np.uint8),
+        )
+        count, _, stats, centroids = cv2.connectedComponentsWithStats(
+            component_mask, connectivity=8
+        )
+        left_components = 0
+        right_components = 0
+        crossing_area = 0
+        component_area = 0
+        margin = max(2, int(width * 0.06))
+        for index in range(1, count):
+            component_width = int(stats[index, cv2.CC_STAT_WIDTH])
+            component_height = int(stats[index, cv2.CC_STAT_HEIGHT])
+            area = int(stats[index, cv2.CC_STAT_AREA])
+            if area < 8 or component_width <= 1 or component_height <= 2:
+                continue
+            component_area += area
+            left = int(stats[index, cv2.CC_STAT_LEFT])
+            right = left + component_width
+            center = float(centroids[index, 0])
+            if left < valley < right and component_width > width * 0.28:
+                crossing_area += area
+            elif center < valley - margin:
+                left_components += 1
+            elif center > valley + margin:
+                right_components += 1
+        crossing_fraction = crossing_area / max(component_area, 1)
+        two_component_streams = left_components >= 2 and right_components >= 2
+        if valley_ratio < 0.95 and crossing_fraction < 0.28 and two_component_streams:
+            local_runs.append((start, end))
+    if local_runs:
+        runs = local_runs
     if not runs:
         return False
 

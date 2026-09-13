@@ -48,8 +48,12 @@ def audit_record(record: dict) -> dict:
     )
 
     flags: list[str] = []
-    if len(layout["root"]["children"]) != 2:
-        flags.append("spread_not_split_into_two_pages")
+    frame = layout["root"]["bbox"]
+    frame_width = frame[2] - frame[0]
+    frame_height = frame[3] - frame[1]
+    expected_pages = 2 if frame_width / max(1, frame_height) >= 1.15 else 1
+    if len(layout["root"]["children"]) != expected_pages:
+        flags.append(f"expected_{expected_pages}_pages")
     if len(text_leaves) < 8:
         flags.append("very_few_text_regions")
     if len(text_leaves) > 120:
