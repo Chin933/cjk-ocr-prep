@@ -1,34 +1,31 @@
-﻿[build-system]
+[build-system]
 requires = ["setuptools>=68"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalization"
-version = "1.0.0"
-description = "Layout detection and OCR preparation for vertical Traditional Chinese historical documents"
+version = "1.1.0.dev0"
+description = "Hierarchical layout and reading-order analysis for historical Chinese documents"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Qinnan Zhou" }]
 dependencies = [
-    "paddlepaddle>=3.0.0",
-    "paddleocr>=3.0.0",
-    "PyMuPDF>=1.24.0",
     "opencv-python>=4.8.0",
     "Pillow>=10.0.0",
-    "numpy>=2.0.0",
-    "click>=8.1.0",
-    "rich>=13.0.0",
-    "tqdm>=4.66.0",
-    "scipy>=1.11.0",
-    "scikit-image>=0.22.0",
+    "numpy>=1.24.0",
 ]
 
-[project.scripts]
-vertical-ocr = "cli:cli"
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
 
-[tool.setuptools]
-py-modules = ["cli"]
+[project.scripts]
+digitalization-layout = "digitalization.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["digitalization*"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
+pythonpath = ["src"]

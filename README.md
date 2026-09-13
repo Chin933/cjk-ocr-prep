@@ -1,121 +1,95 @@
-﻿# Digitalization
+# Digitalization
 
-Digitalization is a Python program for layout detection and OCR preparation in historical Chinese documents.
+Digitalization detects hierarchical page layout and reading order in scanned
+historical Chinese documents.  It focuses on pages with vertical writing,
+ruling lines, nested sections, annotations, large titles, and two-page spreads.
 
-The program targets pages written in vertical Traditional Chinese columns. These pages often contain title blocks, page frames, horizontal section rules, large text blocks, and nested columns. General OCR systems often fail on this material because they detect text strokes but miss the page structure.
+The core package does **not** recognize characters.  OCR engines can consume the
+ordered leaf regions afterward, but OCR is outside the package's main task.
 
-Digitalization starts from the structure of the page. It uses projection profiles and morphology to detect frames, separators, blocks, and columns before OCR.
+## Output
+
+For each image, Digitalization returns a tree:
+
+```text
+spread
+├── right page
+│   ├── upper region
+│   │   └── columns in right-to-left order
+│   └── lower region
+└── left page
+    └── columns in right-to-left order
+```
+
+Every node records its bounding box, split direction, children, structural
+evidence, confidence, and reading-order index.  The tree is retained because
+some historical layouts cannot be represented faithfully by a flat list of
+rectangles.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+Only Pillow, NumPy, and OpenCV are required for layout detection.
+
+Development tools are installed explicitly:
+
+```bash
+pip install -e ".[dev]"
+```
+
+## Python API
+
+```python
+from PIL import Image
+from digitalization import detect_layout
+
+image = Image.open("page.jpg")
+document = detect_layout(image)
+
+for region in document.reading_order:
+    print(region.order, region.bbox)
+```
+
+## Command line
+
+```bash
+digitalization-layout page.jpg \
+  --output page.layout.json \
+  --overlay page.layout.jpg
+```
+
+The JSON contains both the hierarchy and a flattened list of ordered leaf IDs.
+The overlay numbers the detected reading regions for review.
+
+## Method
+
+The current development version combines:
+
+- printed-frame and center-gutter detection
+- multi-scale ruling-line extraction
+- whitespace evidence
+- inferred column pitch when scan damage removes alternating rules
+- page-wide alignment guides shared across upper and lower sections
+- local detection of passages that change from one major column to two small columns
+- strict local horizontal separators inside narrow columns
+- sparse-layout pitch recovery for unusually wide two- or three-column bands
+- recursive horizontal and vertical partitioning
+- direction-aware traversal for reading order
+
+The earlier two-page YOLO experiment is retained only as annotation history.
+It is not part of the production detector.
+
+## Development status
+
+Version `1.1.0.dev0` is an active layout-tree prototype. The two-page seed
+benchmark currently reaches 97.58% pairwise reading-order accuracy. See
+[`docs/BENCHMARK.md`](docs/BENCHMARK.md) for metrics, limitations, and the
+pseudo-label/review loop used to expand the benchmark without drawing every
+box manually.
 
 ## Author
 
 Qinnan Zhou
-
-## What the program does
-
-Digitalization prepares scanned historical Chinese pages for OCR.
-
-It can:
-
-- detect the printed page frame
-- detect horizontal section separators
-- split a page into large blocks
-- detect major vertical columns inside each block
-- detect smaller text lanes when needed
-- create debug images for checking layout detection
-- prepare page regions for downstream OCR
-
-## Why this project exists
-
-Historical Chinese archives often use complex vertical layouts. A single page may contain main text, titles, annotations, nested columns, and genealogy-style divisions.
-
-Most document layout models are trained on modern pages. They work well for paragraphs, titles, tables, and figures. They work less well for archive pages with vertical text and nested reading order.
-
-This project uses the geometry of the page before OCR. It reads whitespace, ruling lines, and column structure as layout signals.
-
-## Current version
-
-It includes:
-
-- a hierarchical projection-based layout detector
-- scripts for extracting pages from PDFs
-- scripts for generating layout debug images
-- scripts for preparing experimental training data
-- early YOLO training code for later experiments
-
-The projection-based detector is the main baseline in this version. The small YOLO experiment trained from two labeled pages is kept as an experiment, not as the main model.
-
-## Basic use
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Preview layout detection:
-
-```bash
-python cli.py preview input.jpg 1 --layout-debug --output output/layout_debug.jpg
-```
-
-Run OCR on a PDF:
-
-```bash
-python cli.py ocr input.pdf -p 1-5 -o output.txt
-```
-
-Run OCR on one image:
-
-```bash
-python cli.py ocr scan.jpg -f text -o result.txt
-```
-
-Save debug images during OCR:
-
-```bash
-python cli.py ocr input.pdf --debug-dir output/debug -o output.txt
-```
-
-## Project structure
-
-```text
-src/vertical_ocr/
-  layout.py        Layout detection
-  pdf_utils.py     PDF to image conversion
-  ocr_engine.py    OCR wrapper
-  postprocess.py   Text assembly
-  pipeline.py      Full pipeline
-
-training/
-  extract_pages.py
-  prepare_projection_dataset.py
-  train_projection.py
-  prepare_pptx_layout_dataset.py
-  train_pptx_layout.py
-
-docs/
-  Notes and annotation instructions
-
-models/
-  Local model files
-
-runs/
-  Local experiment outputs
-```
-
-## Training data
-
-The current project includes scripts for preparing training data. The recommended label set is small and hierarchical:
-
-- block
-- major column
-- subcolumn
-- separator
-
-The goal is not to label every strip of ink. The goal is to label the reading structure of the page.
-
-## Status
-
-This repository is a research prototype. It is designed for historical Chinese documents with vertical text and complex page structure.
-
-The main contribution is the layout pipeline. The OCR engine can be replaced as better OCR systems become available.
