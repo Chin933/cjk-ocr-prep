@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 
-from digitalization import detect_layout
+from digitalization import detect_layout, detect_rule_graph
 
 
 def _synthetic_page() -> Image.Image:
@@ -60,3 +60,17 @@ def test_recovers_unruled_vertical_text_lanes() -> None:
     assert len(result.root.children) == 2
     assert len(result.reading_order) >= 8
     assert any(item in evidence for item in ("text_alignment", "page_text_alignment"))
+
+
+def test_rule_graph_retains_partial_line_extents_and_junctions() -> None:
+    graph = detect_rule_graph(_synthetic_page())
+    assert graph.horizontal
+    assert graph.vertical
+    assert graph.junctions
+    # The horizontal divider exists only on the right-hand page.  A 1-D
+    # projection would lose this fact and silently extend it across the spread.
+    assert any(
+        segment.end - segment.start < graph.frame.width * 0.75
+        for segment in graph.horizontal
+    )
+    assert graph.to_dict()["junctions"]

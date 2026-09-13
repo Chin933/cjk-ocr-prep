@@ -26,7 +26,8 @@ The detector creates tree pseudo-labels for all available pages:
 ```bash
 python training/generate_pseudo_labels.py training/images/all \
   --output runs/pseudo_labels_current.json
-python training/audit_layout_dataset.py training/images/all \
+python training/audit_layout_dataset.py \
+  --pseudo-labels runs/pseudo_labels_current.json \
   --output runs/layout_audit_current.json
 ```
 
@@ -66,11 +67,17 @@ python training/synthetic_benchmark.py \
 
 ## Current seed result
 
-On the two PowerPoint pages, version `1.1.0.dev0` currently reaches 97.58%
-pairwise reading-order accuracy. IoU@0.50 recall is 90.00% for blocks, 64.29%
+On the two PowerPoint pages, version `1.1.0.dev0` currently reaches 97.69%
+pairwise reading-order accuracy. IoU@0.50 recall is 90.00% for blocks, 60.00%
 for major columns, and 38.46% for local subcolumns. On 40 unseen generated
-layouts spanning ten grammars, region IoU@0.50 recall is 72.30% and pairwise
-order accuracy is 96.17%. The harder benchmark deliberately lowered aggregate
-recall: independent within-column structure is currently the weakest grammar
-at 51.04% region recall. This per-grammar result is a development target and
-cannot be hidden by easier regular-column cases.
+layouts spanning ten grammars, region IoU@0.50 recall is 75.30% and pairwise
+order accuracy is 96.21%. The local 2-D ruling graph raises the independent
+within-column grammar from 51.04% to 64.58% on the same fixed seeds. Its
+segments retain endpoints and junctions, preventing a short local rule from
+being silently extended across the page. This per-grammar result remains a
+development target and cannot be hidden by easier regular-column cases.
+
+Across all 76 current real images, the audit reports one structurally risky
+page and a mean of 44.50 text regions per image. Wide title and placard cells
+are retained as intentional regions instead of being forced into equal-width
+columns.

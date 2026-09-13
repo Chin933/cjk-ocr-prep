@@ -44,13 +44,17 @@ pip install -e ".[dev]"
 
 ```python
 from PIL import Image
-from digitalization import detect_layout
+from digitalization import detect_layout, detect_rule_graph
 
 image = Image.open("page.jpg")
 document = detect_layout(image)
 
 for region in document.reading_order:
     print(region.order, region.bbox)
+
+# Optional: inspect the 2-D ruling graph and T-junctions directly.
+rule_graph = detect_rule_graph(image)
+print(rule_graph.junctions)
 ```
 
 ## Command line
@@ -58,7 +62,9 @@ for region in document.reading_order:
 ```bash
 digitalization-layout page.jpg \
   --output page.layout.json \
-  --overlay page.layout.jpg
+  --overlay page.layout.jpg \
+  --graph-output page.rules.json \
+  --graph-overlay page.rules.jpg
 ```
 
 The JSON contains both the hierarchy and a flattened list of ordered leaf IDs.
@@ -70,6 +76,8 @@ The current development version combines:
 
 - printed-frame and center-gutter detection
 - multi-scale ruling-line extraction
+- local 2-D ruling segments with preserved endpoints and junctions
+- rejection of partial rules incorrectly promoted to page-wide separators
 - whitespace evidence
 - inferred column pitch when scan damage removes alternating rules
 - page-wide alignment guides shared across upper and lower sections
@@ -85,7 +93,7 @@ It is not part of the production detector.
 ## Development status
 
 Version `1.1.0.dev0` is an active layout-tree prototype. The two-page seed
-benchmark currently reaches 97.58% pairwise reading-order accuracy. See
+benchmark currently reaches 97.69% pairwise reading-order accuracy. See
 [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for metrics, limitations, and the
 pseudo-label/review loop used to expand the benchmark without drawing every
 box manually.

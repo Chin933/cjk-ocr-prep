@@ -107,6 +107,48 @@ class LayoutConfig:
     text_alignment_min_lanes: int = 3
 
 
+@dataclass(frozen=True)
+class RuleSegment:
+    """A local ruling segment in crop-relative coordinates."""
+
+    axis: Axis
+    position: int
+    start: int
+    end: int
+    confidence: float
+
+    def to_dict(self) -> dict:
+        return {
+            "axis": self.axis,
+            "position": self.position,
+            "start": self.start,
+            "end": self.end,
+            "confidence": round(self.confidence, 4),
+        }
+
+
+@dataclass(frozen=True)
+class RuleGraph:
+    """Two-dimensional ruling graph in image coordinates."""
+
+    width: int
+    height: int
+    frame: Box
+    horizontal: list[RuleSegment]
+    vertical: list[RuleSegment]
+    junctions: list[tuple[int, int]]
+
+    def to_dict(self) -> dict:
+        return {
+            "width": self.width,
+            "height": self.height,
+            "frame": self.frame.as_list(),
+            "horizontal": [segment.to_dict() for segment in self.horizontal],
+            "vertical": [segment.to_dict() for segment in self.vertical],
+            "junctions": [list(point) for point in self.junctions],
+        }
+
+
 def _binarize(image: Image.Image) -> np.ndarray:
     gray = np.asarray(image.convert("L"))
     blur = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -140,6 +182,125 @@ def _line_profile(binary: np.ndarray, axis: Axis, kernel_fraction: float) -> np.
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, length))
     opened = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
     return (opened > 0).mean(axis=0)
+
+
+def _merge_rule_segments(
+    segments: list[RuleSegment], position_tolerance: int, gap_tolerance: int
+) -> list[RuleSegment]:
+    """Join collinear pieces while retaining their two-dimensional extent."""
+    merged: list[RuleSegment] = []
+    for segment in sorted(segments, key=lambda item: (item.position, item.start)):
+        match = None
+        for index in range(len(merged) - 1, -1, -1):
+            previous = merged[index]
+            if segment.position - previous.position > position_tolerance:
+                break
+            if (
+                abs(segment.position - previous.position) <= position_tolerance
+                and segment.start <= previous.end + gap_tolerance
+            ):
+                match = index
+                break
+        if match is None:
+            merged.append(segment)
+            continue
+        previous = merged[match]
+        old_length = max(1, previous.end - previous.start)
+        new_length = max(1, segment.end - segment.start)
+        merged[match] = RuleSegment(
+            segment.axis,
+            int(
+                round(
+                    (previous.position * old_length + segment.position * new_length)
+                    / (old_length + new_length)
+                )
+            ),
+            min(previous.start, segment.start),
+            max(previous.end, segment.end),
+            max(previous.confidence, segment.confidence),
+        )
+    return merged
+
+
+def _local_rule_segments(crop: np.ndarray, axis: Axis) -> list[RuleSegment]:
+    """Extract ruling geometry without collapsing it to a page-wide profile."""
+    height, width = crop.shape
+    if axis == "y":
+        kernel_length = max(18, int(width * 0.09))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_length, 1))
+        opened = cv2.morphologyEx(crop, cv2.MORPH_OPEN, kernel)
+        extent = width
+    else:
+        kernel_length = max(18, int(height * 0.09))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, kernel_length))
+        opened = cv2.morphologyEx(crop, cv2.MORPH_OPEN, kernel)
+        extent = height
+
+    contours, _ = cv2.findContours(opened, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    segments: list[RuleSegment] = []
+    for contour in contours:
+        x, y, box_width, box_height = cv2.boundingRect(contour)
+        if axis == "y":
+            length, thickness = box_width, box_height
+            position, start, end = y + box_height // 2, x, x + box_width
+        else:
+            length, thickness = box_height, box_width
+            position, start, end = x + box_width // 2, y, y + box_height
+        if length < kernel_length or thickness > max(9, int(length * 0.08)):
+            continue
+        segments.append(
+            RuleSegment(
+                axis,
+                position,
+                start,
+                end,
+                min(1.0, length / max(1, extent)),
+            )
+        )
+    return _merge_rule_segments(
+        segments,
+        position_tolerance=max(3, int((height if axis == "y" else width) * 0.008)),
+        gap_tolerance=max(18, int(extent * 0.04)),
+    )
+
+
+def _spanning_rule_boundaries(
+    crop: np.ndarray, axis: Axis, minimum: int
+) -> list[tuple[int, str, float]]:
+    """Return only line segments that genuinely separate this local rectangle.
+
+    A partial segment is preserved by `_local_rule_segments`, but it cannot cut
+    the current rectangle until recursion reaches the band/column whose two
+    opposite edges it connects.  This is the key distinction from a 1-D
+    projection, which silently extends every local line across the full page.
+    """
+    height, width = crop.shape
+    orthogonal = width if axis == "y" else height
+    along = height if axis == "y" else width
+    edge_tolerance = max(7, int(orthogonal * 0.045))
+    margin = max(8, int(along * 0.025))
+    result = []
+    for segment in _local_rule_segments(crop, axis):
+        touches_both_edges = (
+            segment.start <= edge_tolerance
+            and segment.end >= orthogonal - edge_tolerance
+        )
+        coverage = (segment.end - segment.start) / max(1, orthogonal)
+        if not touches_both_edges and coverage < 0.88:
+            continue
+        if margin < segment.position < along - margin:
+            result.append(
+                (
+                    segment.position,
+                    "planar_ruling_graph",
+                    min(0.99, max(0.70, coverage)),
+                )
+            )
+    return _valid_boundaries(
+        _merge_boundaries(result, tolerance=max(5, int(along * 0.008))),
+        along,
+        minimum,
+    )
 
 
 def _frame_box(binary: np.ndarray, inset: int) -> Box:
@@ -261,7 +422,11 @@ def _infer_pitch_boundaries(
     across gaps larger than two ordinary cells and only on ink-dense regions,
     which avoids subdividing common double-width title cells.
     """
-    ruling = [item[0] for item in positions if item[1] == "ruling_line"]
+    ruling = [
+        item[0]
+        for item in positions
+        if item[1] in ("ruling_line", "planar_ruling_graph")
+    ]
     if len(ruling) < 3 or float((crop > 0).mean()) < 0.075:
         return positions
     gaps = np.diff(ruling)
@@ -552,6 +717,18 @@ def _partition(
         return node
 
     horizontal: list[tuple[int, str, float]] = []
+    vertical: list[tuple[int, str, float]] = []
+    graph_vertical = (
+        _spanning_rule_boundaries(crop, "x", config.min_region_width)
+        if last_axis != "x" and box.width >= page_width * 0.55
+        else []
+    )
+    # A single spanning line is common in ordinary title/content blocks and
+    # does not prove a 2-D conflict.  Two or more establish a stable parent
+    # grid against which shorter, local segments can be judged.
+    if len(graph_vertical) < 2:
+        graph_vertical = []
+
     if (
         last_axis != "y"
         and box.width >= page_width * config.horizontal_min_region_fraction
@@ -566,9 +743,21 @@ def _partition(
             box.height,
             config.min_region_height,
         )
-    vertical: list[tuple[int, str, float]] = []
+
     if last_axis != "x":
         vertical_positions = _separator_positions(crop, "x", config)
+        if graph_vertical:
+            tolerance = max(8, int(box.width * 0.018))
+            graph_x = [item[0] for item in graph_vertical]
+            vertical_positions = [
+                item
+                for item in vertical_positions
+                if item[1] != "ruling_line"
+                or any(abs(item[0] - x) <= tolerance for x in graph_x)
+            ]
+            vertical_positions = _merge_boundaries(
+                vertical_positions + graph_vertical, tolerance=tolerance
+            )
         vertical_positions = _infer_pitch_boundaries(
             crop, vertical_positions, config.min_region_width
         )
@@ -648,6 +837,84 @@ def _partition(
     node.evidence = evidence
     node.confidence = min(cut[2] for cut in cuts)
     return node
+
+
+def detect_rule_graph(
+    image: Image.Image, config: LayoutConfig | None = None
+) -> RuleGraph:
+    """Extract local ruling segments and their T/cross junctions.
+
+    Unlike projection profiles, segments retain both endpoints.  Coordinates
+    are returned in the original image space so the graph can be inspected or
+    used by downstream layout models independently of OCR.
+    """
+    config = config or LayoutConfig()
+    rgb = image.convert("RGB")
+    width, height = rgb.size
+    binary = _binarize(rgb)
+    frame = _frame_box(binary, config.frame_inset)
+    crop = binary[frame.y1 : frame.y2, frame.x1 : frame.x2]
+
+    horizontal = [
+        RuleSegment(
+            "y",
+            segment.position + frame.y1,
+            segment.start + frame.x1,
+            segment.end + frame.x1,
+            segment.confidence,
+        )
+        for segment in _local_rule_segments(crop, "y")
+    ]
+    vertical = [
+        RuleSegment(
+            "x",
+            segment.position + frame.x1,
+            segment.start + frame.y1,
+            segment.end + frame.y1,
+            segment.confidence,
+        )
+        for segment in _local_rule_segments(crop, "x")
+    ]
+    tolerance = max(5, int(min(frame.width, frame.height) * 0.006))
+    junctions = sorted(
+        {
+            (vertical_segment.position, horizontal_segment.position)
+            for horizontal_segment in horizontal
+            for vertical_segment in vertical
+            if horizontal_segment.start - tolerance
+            <= vertical_segment.position
+            <= horizontal_segment.end + tolerance
+            and vertical_segment.start - tolerance
+            <= horizontal_segment.position
+            <= vertical_segment.end + tolerance
+        }
+    )
+    return RuleGraph(width, height, frame, horizontal, vertical, junctions)
+
+
+def draw_rule_graph(image: Image.Image, graph: RuleGraph) -> Image.Image:
+    """Return an overlay of local line extents and detected junctions."""
+    from PIL import ImageDraw
+
+    output = image.convert("RGB").copy()
+    draw = ImageDraw.Draw(output)
+    draw.rectangle(graph.frame.as_list(), outline="#168aad", width=3)
+    for segment in graph.horizontal:
+        draw.line(
+            (segment.start, segment.position, segment.end, segment.position),
+            fill="#e63946",
+            width=3,
+        )
+    for segment in graph.vertical:
+        draw.line(
+            (segment.position, segment.start, segment.position, segment.end),
+            fill="#2a9d8f",
+            width=3,
+        )
+    radius = max(3, int(min(graph.width, graph.height) * 0.003))
+    for x, y in graph.junctions:
+        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill="#ffb703")
+    return output
 
 
 def detect_layout(

@@ -13,47 +13,48 @@ from PIL import Image
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from digitalization import LayoutNode, detect_layout
+from digitalization import detect_layout
 
 
-def _nodes(root: LayoutNode) -> list[LayoutNode]:
-    result: list[LayoutNode] = []
+def _nodes(root: dict) -> list[dict]:
+    result: list[dict] = []
     stack = [root]
     while stack:
         node = stack.pop()
         result.append(node)
-        stack.extend(node.children)
+        stack.extend(node["children"])
     return result
 
 
-def audit_page(path: Path) -> dict:
-    with Image.open(path) as source:
-        image = source.convert("RGB")
-    width, height = image.size
-    document = detect_layout(image)
-    nodes = _nodes(document.root)
-    leaves = document.reading_order
-    empty_leaves = document.root.leaves(include_empty=True)
-    empty_count = sum(node.kind == "empty" for node in empty_leaves)
-    widths = [node.bbox.width / width for node in leaves]
-    inferred_count = sum("inferred_pitch" in node.evidence for node in nodes)
+def audit_record(record: dict) -> dict:
+    layout = record["layout"]
+    width, height = layout["width"], layout["height"]
+    nodes = _nodes(layout["root"])
+    leaves = [node for node in nodes if not node["children"]]
+    text_ids = set(layout["reading_order"])
+    text_leaves = [node for node in leaves if node["id"] in text_ids]
+    empty_count = sum(node["kind"] == "empty" for node in leaves)
+    widths = [
+        (node["bbox"][2] - node["bbox"][0]) / width for node in text_leaves
+    ]
+    inferred_count = sum("inferred_pitch" in node["evidence"] for node in nodes)
     alignment_count = sum(
-        "text_alignment" in node.evidence
-        or "page_text_alignment" in node.evidence
+        "text_alignment" in node["evidence"]
+        or "page_text_alignment" in node["evidence"]
         for node in nodes
     )
     partial_subcolumn_count = sum(
-        "partial_subcolumn_alignment" in node.evidence for node in nodes
+        "partial_subcolumn_alignment" in node["evidence"] for node in nodes
     )
 
     flags: list[str] = []
-    if len(document.root.children) != 2:
+    if len(layout["root"]["children"]) != 2:
         flags.append("spread_not_split_into_two_pages")
-    if len(leaves) < 8:
+    if len(text_leaves) < 8:
         flags.append("very_few_text_regions")
-    if len(leaves) > 120:
+    if len(text_leaves) > 120:
         flags.append("very_many_text_regions")
-    if any(relative_width > 0.20 for relative_width in widths):
+    if any(relative_width > 0.34 for relative_width in widths):
         flags.append("very_wide_text_region")
     if inferred_count > len(nodes) * 0.45:
         flags.append("heavy_pitch_inference")
@@ -65,16 +66,16 @@ def audit_page(path: Path) -> dict:
         len(flags) * 2.0
         + max(widths, default=0.0) * 2.0
         + evidence_ratio
-        + abs(len(leaves) - 35) / 100
+        + abs(len(text_leaves) - 35) / 100
     )
 
     return {
-        "image": path.name,
+        "image": record["image"],
         "width": width,
         "height": height,
-        "page_count": len(document.root.children),
+        "page_count": len(layout["root"]["children"]),
         "node_count": len(nodes),
-        "text_region_count": len(leaves),
+        "text_region_count": len(text_leaves),
         "empty_region_count": empty_count,
         "max_text_width_fraction": round(max(widths, default=0.0), 4),
         "inferred_pitch_node_count": inferred_count,
@@ -85,24 +86,36 @@ def audit_page(path: Path) -> dict:
     }
 
 
+def audit_page(path: Path) -> dict:
+    with Image.open(path) as source:
+        layout = detect_layout(source.convert("RGB")).to_dict()
+    return audit_record({"image": path.name, "layout": layout})
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("image_dir", type=Path)
+    parser.add_argument("image_dir", type=Path, nargs="?")
+    parser.add_argument("--pseudo-labels", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
-    images = sorted(
-        path
-        for path in args.image_dir.iterdir()
-        if path.suffix.lower() in {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
-    )
-    if not images:
-        raise SystemExit(f"No page images found in {args.image_dir}")
-
-    pages = []
-    for index, path in enumerate(images, start=1):
-        pages.append(audit_page(path))
-        print(f"[{index:03d}/{len(images):03d}] {path.name}", flush=True)
+    if args.pseudo_labels:
+        source = json.loads(args.pseudo_labels.read_text(encoding="utf-8"))
+        pages = [audit_record(record) for record in source["records"]]
+    else:
+        if args.image_dir is None:
+            parser.error("image_dir is required unless --pseudo-labels is supplied")
+        images = sorted(
+            path
+            for path in args.image_dir.iterdir()
+            if path.suffix.lower() in {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
+        )
+        if not images:
+            raise SystemExit(f"No page images found in {args.image_dir}")
+        pages = []
+        for index, path in enumerate(images, start=1):
+            pages.append(audit_page(path))
+            print(f"[{index:03d}/{len(images):03d}] {path.name}", flush=True)
 
     flag_counts = Counter(flag for page in pages for flag in page["flags"])
     summary = {
