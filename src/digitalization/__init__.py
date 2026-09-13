@@ -5,11 +5,15 @@ from .layout import (
     LayoutConfig,
     LayoutDocument,
     LayoutNode,
+    RegionCell,
+    RegionGraph,
     RuleGraph,
     RuleSegment,
     detect_layout,
+    detect_region_graph,
     detect_rule_graph,
     draw_layout,
+    draw_region_graph,
     draw_rule_graph,
 )
 
@@ -18,11 +22,15 @@ __all__ = [
     "LayoutConfig",
     "LayoutDocument",
     "LayoutNode",
+    "RegionCell",
+    "RegionGraph",
     "RuleGraph",
     "RuleSegment",
     "detect_layout",
+    "detect_region_graph",
     "detect_rule_graph",
     "draw_layout",
+    "draw_region_graph",
     "draw_rule_graph",
 ]
-__version__ = "1.1.0.dev0"
+__version__ = "1.2.0.dev0"

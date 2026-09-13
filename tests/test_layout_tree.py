@@ -1,6 +1,13 @@
 from PIL import Image, ImageDraw
 
-from digitalization import Box, LayoutConfig, LayoutNode, detect_layout, detect_rule_graph
+from digitalization import (
+    Box,
+    LayoutConfig,
+    LayoutNode,
+    detect_layout,
+    detect_region_graph,
+    detect_rule_graph,
+)
 from digitalization.layout import _binarize, _split_partial_subcolumns
 
 
@@ -76,6 +83,42 @@ def test_rule_graph_retains_partial_line_extents_and_junctions() -> None:
         for segment in graph.horizontal
     )
     assert graph.to_dict()["junctions"]
+
+
+def test_planar_region_graph_keeps_t_junction_cells_local() -> None:
+    graph = detect_region_graph(_synthetic_page())
+    left = [cell for cell in graph.cells if cell.bbox.x2 <= 300]
+    right = [cell for cell in graph.cells if cell.bbox.x1 >= 300]
+
+    assert len(left) == 4
+    assert len(right) == 8
+    assert all(cell.bbox.height > 300 for cell in left)
+    assert all(cell.bbox.height < 250 for cell in right)
+    assert all(cell.area > 0 and len(cell.polygon) >= 4 for cell in graph.cells)
+    assert all(
+        cell.id in next(item for item in graph.cells if item.id == neighbor).neighbors
+        for cell in graph.cells
+        for neighbor in cell.neighbors
+    )
+    assert len(graph.to_dict()["reading_order"]) == 8
+
+
+def test_planar_region_graph_preserves_concave_face_geometry() -> None:
+    image = Image.new("RGB", (420, 420), "white")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((10, 10, 410, 410), outline="black", width=5)
+    draw.line((210, 10, 210, 210), fill="black", width=4)
+    draw.line((210, 210, 410, 210), fill="black", width=4)
+
+    graph = detect_region_graph(image)
+    concave = [
+        cell
+        for cell in graph.cells
+        if cell.area < cell.bbox.width * cell.bbox.height * 0.80
+    ]
+    assert len(graph.cells) == 2
+    assert len(concave) == 1
+    assert len(concave[0].polygon) >= 6
 
 
 def test_local_2d_support_recovers_short_nested_subcolumns() -> None:

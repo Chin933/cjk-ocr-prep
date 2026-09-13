@@ -8,7 +8,14 @@ from pathlib import Path
 
 from PIL import Image
 
-from .layout import detect_layout, detect_rule_graph, draw_layout, draw_rule_graph
+from .layout import (
+    detect_layout,
+    detect_region_graph,
+    detect_rule_graph,
+    draw_layout,
+    draw_region_graph,
+    draw_rule_graph,
+)
 
 
 def main() -> None:
@@ -21,6 +28,8 @@ def main() -> None:
     parser.add_argument("--overlay", type=Path)
     parser.add_argument("--graph-output", type=Path)
     parser.add_argument("--graph-overlay", type=Path)
+    parser.add_argument("--region-graph-output", type=Path)
+    parser.add_argument("--region-graph-overlay", type=Path)
     args = parser.parse_args()
 
     with Image.open(args.image) as source:
@@ -44,6 +53,17 @@ def main() -> None:
         if args.graph_overlay:
             args.graph_overlay.parent.mkdir(parents=True, exist_ok=True)
             draw_rule_graph(image, graph).save(args.graph_overlay)
+    if args.region_graph_output or args.region_graph_overlay:
+        region_graph = detect_region_graph(image)
+        if args.region_graph_output:
+            args.region_graph_output.parent.mkdir(parents=True, exist_ok=True)
+            args.region_graph_output.write_text(
+                json.dumps(region_graph.to_dict(), ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        if args.region_graph_overlay:
+            args.region_graph_overlay.parent.mkdir(parents=True, exist_ok=True)
+            draw_region_graph(image, region_graph).save(args.region_graph_overlay)
 
     print(
         f"pages={len(result.root.children)} "

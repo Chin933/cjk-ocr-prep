@@ -149,6 +149,58 @@ class RuleGraph:
         }
 
 
+@dataclass
+class RegionCell:
+    """A bounded face of the local 2-D ruling graph."""
+
+    id: str
+    kind: NodeKind
+    bbox: Box
+    area: int
+    polygon: list[tuple[int, int]]
+    order: int | None = None
+    neighbors: list[str] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=lambda: ["planar_ruling_face"])
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "kind": self.kind,
+            "bbox": self.bbox.as_list(),
+            "area": self.area,
+            "polygon": [list(point) for point in self.polygon],
+            "order": self.order,
+            "neighbors": self.neighbors,
+            "evidence": self.evidence,
+        }
+
+
+@dataclass
+class RegionGraph:
+    """Planar cells and adjacency retained alongside the slicing tree."""
+
+    width: int
+    height: int
+    frame: Box
+    cells: list[RegionCell]
+
+    def to_dict(self) -> dict:
+        return {
+            "width": self.width,
+            "height": self.height,
+            "frame": self.frame.as_list(),
+            "reading_order": [
+                cell.id
+                for cell in sorted(
+                    self.cells,
+                    key=lambda cell: cell.order if cell.order is not None else 10**9,
+                )
+                if cell.kind != "empty"
+            ],
+            "cells": [cell.to_dict() for cell in self.cells],
+        }
+
+
 def _binarize(image: Image.Image) -> np.ndarray:
     gray = np.asarray(image.convert("L"))
     blur = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -603,53 +655,39 @@ def _merge_boundaries(
 def _leaf_kind(crop: np.ndarray, config: LayoutConfig) -> NodeKind:
     if crop.size == 0:
         return "empty"
-    # Ignore a thin rim so frame/ruling ink does not turn a blank cell into text.
     rim_y = max(1, int(crop.shape[0] * 0.015))
     rim_x = max(1, int(crop.shape[1] * 0.03))
     inner = crop[rim_y:-rim_y or None, rim_x:-rim_x or None]
-    if not inner.size:
-        return "empty"
-    height, width = inner.shape
-    horizontal_candidates = cv2.morphologyEx(
-        inner,
-        cv2.MORPH_OPEN,
-        cv2.getStructuringElement(
-            cv2.MORPH_RECT, (max(24, int(width * 0.55)), 1)
-        ),
-    )
-    vertical_candidates = cv2.morphologyEx(
-        inner,
-        cv2.MORPH_OPEN,
-        cv2.getStructuringElement(
-            cv2.MORPH_RECT, (1, max(24, int(height * 0.35)))
-        ),
-    )
-    rule_mask = np.zeros_like(inner)
-    for candidates, axis in (
-        (horizontal_candidates, "y"),
-        (vertical_candidates, "x"),
-    ):
-        count, labels, stats, _ = cv2.connectedComponentsWithStats(
-            (candidates > 0).astype(np.uint8), connectivity=8
-        )
-        for index in range(1, count):
-            component_width = int(stats[index, cv2.CC_STAT_WIDTH])
-            component_height = int(stats[index, cv2.CC_STAT_HEIGHT])
-            if axis == "y":
-                is_rule = (
-                    component_width >= width * 0.75
-                    and component_height <= max(4, height * 0.05)
-                )
-            else:
-                is_rule = (
-                    component_height >= height * 0.75
-                    and component_width <= max(4, width * 0.05)
-                )
-            if is_rule:
-                rule_mask[labels == index] = 255
-    content = cv2.subtract(inner, rule_mask)
-    density = float((content > 0).mean())
+    density = float((inner > 0).mean()) if inner.size else 0.0
     return "text" if density >= config.min_text_density else "empty"
+
+
+def _page_has_content(crop: np.ndarray, config: LayoutConfig) -> bool:
+    """Distinguish page-level content from structural rules.
+
+    This is deliberately evaluated at page scale: genuine glyph strokes cannot
+    span most of a page, while trying the same subtraction inside a narrow leaf
+    confuses a vertical run of glyphs with a rule.
+    """
+    if not crop.size:
+        return False
+    height, width = crop.shape
+    horizontal_rules = cv2.morphologyEx(
+        crop,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(
+            cv2.MORPH_RECT, (max(24, int(width * 0.70)), 1)
+        ),
+    )
+    vertical_rules = cv2.morphologyEx(
+        crop,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(
+            cv2.MORPH_RECT, (1, max(24, int(height * 0.85)))
+        ),
+    )
+    residual = cv2.subtract(crop, cv2.bitwise_or(horizontal_rules, vertical_rules))
+    return float((residual > 0).mean()) >= config.min_text_density
 
 
 def _split_partial_subcolumns(
@@ -1136,12 +1174,210 @@ def detect_layout(
             page_box.width,
             page_guides,
         )
+        if page.children and not _page_has_content(page_crop, config):
+            for leaf in page.leaves(include_empty=True):
+                leaf.kind = "empty"
+                leaf.order = None
+                leaf.evidence = sorted(set(leaf.evidence + ["page_rules_only"]))
         page.kind = "page"
         root.children.append(page)
 
     for order, leaf in enumerate(root.leaves(include_empty=False)):
         leaf.order = order
     return LayoutDocument(width=width, height=height, root=root)
+
+
+def detect_region_graph(
+    image: Image.Image,
+    config: LayoutConfig | None = None,
+) -> RegionGraph:
+    """Extract bounded planar cells without extending local rules page-wide.
+
+    The recursive layout tree remains the primary reading model.  This graph
+    is its non-slicing companion: T-junctions and unequal-height neighbouring
+    cells survive as faces and adjacency rather than being forced into a
+    sequence of full-width/full-height cuts.
+    """
+    config = config or LayoutConfig()
+    rgb = image.convert("RGB")
+    binary = _binarize(rgb)
+    rules = detect_rule_graph(rgb, config)
+    frame = rules.frame
+    height, width = frame.height, frame.width
+    thickness = max(3, int(min(width, height) * 0.004))
+    barrier = np.zeros((height, width), dtype=np.uint8)
+    cv2.rectangle(barrier, (0, 0), (width - 1, height - 1), 255, thickness)
+    for segment in rules.horizontal:
+        cv2.line(
+            barrier,
+            (max(0, segment.start - frame.x1), segment.position - frame.y1),
+            (min(width - 1, segment.end - frame.x1), segment.position - frame.y1),
+            255,
+            thickness,
+        )
+    for segment in rules.vertical:
+        cv2.line(
+            barrier,
+            (segment.position - frame.x1, max(0, segment.start - frame.y1)),
+            (segment.position - frame.x1, min(height - 1, segment.end - frame.y1)),
+            255,
+            thickness,
+        )
+    closing = max(3, thickness * 2 + 1)
+    barrier = cv2.morphologyEx(
+        barrier, cv2.MORPH_CLOSE, np.ones((closing, closing), np.uint8)
+    )
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(
+        (barrier == 0).astype(np.uint8), connectivity=4
+    )
+
+    cells: list[RegionCell] = []
+    frame_binary = binary[frame.y1 : frame.y2, frame.x1 : frame.x2]
+    minimum_area = config.min_region_width * config.min_region_height
+    for index in range(1, count):
+        x = int(stats[index, cv2.CC_STAT_LEFT])
+        y = int(stats[index, cv2.CC_STAT_TOP])
+        cell_width = int(stats[index, cv2.CC_STAT_WIDTH])
+        cell_height = int(stats[index, cv2.CC_STAT_HEIGHT])
+        area = int(stats[index, cv2.CC_STAT_AREA])
+        corner_offset = min(max(thickness * 3, 5), (min(width, height) - 1) // 3)
+        corner_labels = (
+            labels[corner_offset, corner_offset],
+            labels[corner_offset, width - 1 - corner_offset],
+            labels[height - 1 - corner_offset, corner_offset],
+            labels[height - 1 - corner_offset, width - 1 - corner_offset],
+        )
+        fill_ratio = area / max(1, cell_width * cell_height)
+        surrounding_background = (
+            all(label == index for label in corner_labels) and fill_ratio < 0.85
+        )
+        if (
+            surrounding_background
+            or area < minimum_area
+            or cell_width < config.min_region_width
+            or cell_height < config.min_region_height
+        ):
+            continue
+        box = Box(
+            frame.x1 + x,
+            frame.y1 + y,
+            frame.x1 + x + cell_width,
+            frame.y1 + y + cell_height,
+        )
+        face_mask = (labels == index).astype(np.uint8)
+        contours, _ = cv2.findContours(
+            face_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        contour = max(contours, key=cv2.contourArea)
+        epsilon = max(1.0, cv2.arcLength(contour, True) * 0.002)
+        polygon = [
+            (int(point[0][0]) + frame.x1, int(point[0][1]) + frame.y1)
+            for point in cv2.approxPolyDP(contour, epsilon, True)
+        ]
+        ink_density = float((frame_binary[labels == index] > 0).mean())
+        cells.append(
+            RegionCell(
+                f"cell_{len(cells) + 1:04d}",
+                "text" if ink_density >= config.min_text_density else "empty",
+                box,
+                area,
+                polygon,
+            )
+        )
+
+    adjacency_tolerance = thickness * 3
+    for offset, left in enumerate(cells):
+        for right in cells[offset + 1 :]:
+            y_overlap = max(
+                0,
+                min(left.bbox.y2, right.bbox.y2)
+                - max(left.bbox.y1, right.bbox.y1),
+            )
+            x_overlap = max(
+                0,
+                min(left.bbox.x2, right.bbox.x2)
+                - max(left.bbox.x1, right.bbox.x1),
+            )
+            x_touch = min(
+                abs(left.bbox.x2 - right.bbox.x1),
+                abs(right.bbox.x2 - left.bbox.x1),
+            )
+            y_touch = min(
+                abs(left.bbox.y2 - right.bbox.y1),
+                abs(right.bbox.y2 - left.bbox.y1),
+            )
+            vertical_neighbor = (
+                x_touch <= adjacency_tolerance
+                and y_overlap >= min(left.bbox.height, right.bbox.height) * 0.15
+            )
+            horizontal_neighbor = (
+                y_touch <= adjacency_tolerance
+                and x_overlap >= min(left.bbox.width, right.bbox.width) * 0.15
+            )
+            if vertical_neighbor or horizontal_neighbor:
+                left.neighbors.append(right.id)
+                right.neighbors.append(left.id)
+
+    layout = detect_layout(rgb, config)
+    leaves = layout.root.leaves(include_empty=True)
+
+    def overlap(cell: RegionCell, leaf: LayoutNode) -> int:
+        return max(
+            0,
+            min(cell.bbox.x2, leaf.bbox.x2) - max(cell.bbox.x1, leaf.bbox.x1),
+        ) * max(
+            0,
+            min(cell.bbox.y2, leaf.bbox.y2) - max(cell.bbox.y1, leaf.bbox.y1),
+        )
+
+    def matched_order(cell: RegionCell) -> int:
+        if not leaves:
+            return 10**9
+        leaf = max(leaves, key=lambda candidate: overlap(cell, candidate))
+        return leaf.order if leaf.order is not None else 10**9
+
+    ranked = sorted(
+        (cell for cell in cells if cell.kind != "empty"),
+        key=lambda cell: (
+            matched_order(cell),
+            cell.bbox.y1,
+            -cell.bbox.x1,
+        ),
+    )
+    for order, cell in enumerate(ranked):
+        cell.order = order
+    return RegionGraph(rgb.width, rgb.height, frame, cells)
+
+
+def draw_region_graph(image: Image.Image, graph: RegionGraph) -> Image.Image:
+    """Return an overlay of planar cells, adjacency, and graph order."""
+    from PIL import ImageDraw
+
+    output = image.convert("RGB").copy()
+    draw = ImageDraw.Draw(output)
+    centers = {
+        cell.id: (
+            (cell.bbox.x1 + cell.bbox.x2) // 2,
+            (cell.bbox.y1 + cell.bbox.y2) // 2,
+        )
+        for cell in graph.cells
+    }
+    for cell in graph.cells:
+        for neighbor in cell.neighbors:
+            if cell.id < neighbor:
+                draw.line((*centers[cell.id], *centers[neighbor]), fill="#90be6d", width=2)
+    for cell in graph.cells:
+        if len(cell.polygon) >= 3:
+            draw.line(cell.polygon + [cell.polygon[0]], fill="#e76f51", width=3)
+        else:
+            draw.rectangle(cell.bbox.as_list(), outline="#e76f51", width=3)
+        if cell.order is not None:
+            draw.text(
+                (cell.bbox.x1 + 4, cell.bbox.y1 + 4),
+                str(cell.order),
+                fill="#d00000",
+            )
+    return output
 
 
 def draw_layout(image: Image.Image, document: LayoutDocument) -> Image.Image:

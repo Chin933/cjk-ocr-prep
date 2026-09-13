@@ -85,7 +85,7 @@ python training/synthetic_benchmark.py \
 
 ## Current seed result
 
-On the two PowerPoint pages, version `1.1.0.dev0` currently reaches 98.79%
+On the two PowerPoint pages, version `1.2.0.dev0` currently reaches 98.79%
 pairwise reading-order accuracy. IoU@0.50 recall is 90.00% for blocks, 72.86%
 for major columns, and 48.08% for local subcolumns. On 40 unseen generated
 layouts spanning ten grammars, region IoU@0.50 recall is 75.32% and pairwise
@@ -95,13 +95,21 @@ segments retain endpoints and junctions, preventing a short local rule from
 being silently extended across the page. This per-grammar result remains a
 development target and cannot be hidden by easier regular-column cases.
 
-Across all 76 current real images, the detector now averages 52.66 text regions
+The planar region graph is a companion to the recursive tree, not a replacement
+score hidden inside these figures. It converts high-confidence local rules into
+bounded faces, preserves each face's polygon and adjacency, and inherits content
+order from the tree. A T-junction test verifies that a divider on one side of a
+page does not split its neighbour. Pages without enough explicit ruling evidence
+remain the responsibility of the content-alignment tree.
+
+Across all 76 current real images, the detector now averages 53.71 text regions
 per image; the audit leaves one page flagged for heavy pitch inference after
 page-frame aspect is handled correctly. A second target-only archive sample
-contains 24 pages selected from 31 volumes and six detected layout families.
+contains 24 pages selected from 31 volumes and eight detected layout families.
 Seventeen known catalogue/index pages are explicitly excluded. The archive
 sample is a diversity and failure-discovery set, not ground truth: its current
-wide-region warnings show that dense mixed-size pages remain the next major
+mean is 24.21 text regions per page, and its 14 wide-region warnings show that
+dense mixed-size pages remain the next major
 under-segmentation target.
 
 Error diagnosis on the seed truth separates failures by geometry. Of the 54
