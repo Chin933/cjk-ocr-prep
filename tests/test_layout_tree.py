@@ -8,7 +8,11 @@ from digitalization import (
     detect_region_graph,
     detect_rule_graph,
 )
-from digitalization.layout import _binarize, _split_partial_subcolumns
+from digitalization.layout import (
+    _binarize,
+    _group_minor_x_splits,
+    _split_partial_subcolumns,
+)
 
 
 def _synthetic_page() -> Image.Image:
@@ -119,6 +123,28 @@ def test_planar_region_graph_preserves_concave_face_geometry() -> None:
     assert len(graph.cells) == 2
     assert len(concave) == 1
     assert len(concave[0].polygon) >= 6
+
+
+def test_multiscale_column_groups_preserve_leaf_order() -> None:
+    children = [
+        LayoutNode(
+            f"leaf_{index}",
+            "text",
+            Box(index * 50, 0, (index + 1) * 50, 500),
+        )
+        for index in range(6)
+    ]
+    counter = iter(range(10))
+    grouped = _group_minor_x_splits(
+        children,
+        [(index * 50, "text_alignment", 0.7) for index in range(1, 6)],
+        1000,
+        lambda prefix: f"{prefix}_{next(counter)}",
+    )
+
+    assert len(grouped) == 3
+    reading_order = [leaf.id for group in reversed(grouped) for leaf in group.leaves()]
+    assert reading_order == [f"leaf_{index}" for index in reversed(range(6))]
 
 
 def test_local_2d_support_recovers_short_nested_subcolumns() -> None:

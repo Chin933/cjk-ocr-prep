@@ -33,4 +33,4 @@ __all__ = [
     "draw_region_graph",
     "draw_rule_graph",
 ]
-__version__ = "1.2.0.dev0"
+__version__ = "1.3.0.dev0"

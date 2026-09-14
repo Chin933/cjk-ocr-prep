@@ -690,6 +690,79 @@ def _page_has_content(crop: np.ndarray, config: LayoutConfig) -> bool:
     return float((residual > 0).mean()) >= config.min_text_density
 
 
+def _group_minor_x_splits(
+    children: list[LayoutNode],
+    cuts: list[tuple[int, str, float]],
+    page_width: int,
+    next_id,
+) -> list[LayoutNode]:
+    """Build parent columns around finer alignment-based splits."""
+
+    def make_group(run: list[LayoutNode]) -> LayoutNode:
+        box = Box(
+            min(child.bbox.x1 for child in run),
+            min(child.bbox.y1 for child in run),
+            max(child.bbox.x2 for child in run),
+            max(child.bbox.y2 for child in run),
+        )
+        return LayoutNode(
+            next_id("region"),
+            "region",
+            box,
+            split_axis="x",
+            confidence=min(child.confidence for child in run),
+            evidence=["multiscale_column_group"],
+            children=list(reversed(run)),
+        )
+
+    narrow_limit = page_width * 0.07
+    if sum(child.bbox.width <= narrow_limit for child in children) >= 4:
+        paired: list[LayoutNode] = []
+        index = 0
+        grouped_any = False
+        while index < len(children):
+            left = children[index]
+            if (
+                index + 1 < len(children)
+                and left.bbox.width <= narrow_limit
+                and children[index + 1].bbox.width <= narrow_limit
+            ):
+                paired.append(make_group(children[index : index + 2]))
+                grouped_any = True
+                index += 2
+            else:
+                paired.append(left)
+                index += 1
+        if grouped_any:
+            return paired
+
+    strong_evidence = {"ruling_line", "planar_ruling_graph"}
+    if (
+        len(children) < 3
+        or sum(cut[1] in strong_evidence for cut in cuts) < 2
+        or not any(cut[1] not in strong_evidence for cut in cuts)
+    ):
+        return children
+
+    runs: list[list[LayoutNode]] = []
+    current = [children[0]]
+    for cut, child in zip(cuts, children[1:]):
+        if cut[1] in strong_evidence:
+            runs.append(current)
+            current = [child]
+        else:
+            current.append(child)
+    runs.append(current)
+
+    grouped: list[LayoutNode] = []
+    for run in runs:
+        if len(run) == 1:
+            grouped.append(run[0])
+            continue
+        grouped.append(make_group(run))
+    return grouped
+
+
 def _split_partial_subcolumns(
     node: LayoutNode,
     binary: np.ndarray,
@@ -1032,6 +1105,7 @@ def _partition(
         child.evidence = sorted(set(child.evidence + evidence))
         children.append(child)
     if axis == "x":
+        children = _group_minor_x_splits(children, cuts, page_width, next_id)
         children.reverse()
     node.children = children
     node.evidence = evidence

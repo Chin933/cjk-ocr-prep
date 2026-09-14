@@ -80,7 +80,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--pdf-step", type=int, default=14)
-    parser.add_argument("--select", type=int, default=24)
+    parser.add_argument("--select", type=int, default=40)
     parser.add_argument("--screen-dpi", type=int, default=96)
     parser.add_argument("--output-dpi", type=int, default=160)
     parser.add_argument("--min-content-density", type=float, default=0.015)

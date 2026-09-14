@@ -60,9 +60,6 @@ python training/sample_archive_diversity.py D:/Programs/Keju/Zhujuanjicheng/1_42
   --report runs/archive_diversity_current.json
 ```
 
-Known catalogue/index pages are recorded in
-`training/archive_sample_exclusions.txt` and excluded before novelty ranking.
-This prevents out-of-scope directory typography from steering the detector.
 PyMuPDF is needed only for this archive-development command, never by the core
 package.
 
@@ -85,11 +82,13 @@ python training/synthetic_benchmark.py \
 
 ## Current seed result
 
-On the two PowerPoint pages, version `1.2.0.dev0` currently reaches 98.79%
-pairwise reading-order accuracy. IoU@0.50 recall is 90.00% for blocks, 72.86%
-for major columns, and 48.08% for local subcolumns. On 40 unseen generated
-layouts spanning ten grammars, region IoU@0.50 recall is 75.32% and pairwise
-order accuracy is 96.37%. The local 2-D ruling graph raises the independent
+On the two PowerPoint pages, version `1.3.0.dev0` currently reaches 98.79%
+pairwise reading-order accuracy. IoU@0.50 recall is 90.00% for blocks, 82.86%
+for major columns, and 48.08% for local subcolumns. Recovering parent columns
+around narrow aligned half-lanes raises major-column IoU@0.75 recall from
+28.57% to 55.71% without changing leaf order. On 40 unseen generated layouts
+spanning ten grammars, region IoU@0.50 recall is 76.44% and pairwise order
+accuracy is 96.56%. The local 2-D ruling graph raises the independent
 within-column grammar from 51.04% to 64.58% on the same fixed seeds. Its
 segments retain endpoints and junctions, preventing a short local rule from
 being silently extended across the page. This per-grammar result remains a
@@ -103,14 +102,11 @@ page does not split its neighbour. Pages without enough explicit ruling evidence
 remain the responsibility of the content-alignment tree.
 
 Across all 76 current real images, the detector now averages 53.71 text regions
-per image; the audit leaves one page flagged for heavy pitch inference after
-page-frame aspect is handled correctly. A second target-only archive sample
-contains 24 pages selected from 31 volumes and eight detected layout families.
-Seventeen known catalogue/index pages are explicitly excluded. The archive
-sample is a diversity and failure-discovery set, not ground truth: its current
-mean is 24.21 text regions per page, and its 14 wide-region warnings show that
-dense mixed-size pages remain the next major
-under-segmentation target.
+per image, with no automatic audit flags. A second target-only archive sample
+contains 40 pages selected from 31 volumes and eight detected layout families.
+The archive sample is a diversity and failure-discovery set, not ground truth:
+its current mean is 24.40 text regions per page, and its 25 wide-region warnings
+show that dense mixed-size pages remain the next major under-segmentation target.
 
 Error diagnosis on the seed truth separates failures by geometry. Of the 54
 remaining subcolumn misses, 25 are unsplit horizontal merges and 17 have an

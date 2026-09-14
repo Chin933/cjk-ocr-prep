@@ -106,8 +106,9 @@ It is not part of the production detector.
 
 ## Development status
 
-Version `1.2.0.dev0` is an active layout-tree/region-graph prototype. The two-page seed
-benchmark currently reaches 98.79% pairwise reading-order accuracy. See
+Version `1.3.0.dev0` is an active layout-tree/region-graph prototype. The two-page seed
+benchmark currently reaches 98.79% pairwise reading-order accuracy and 82.86%
+major-column recall at IoU 0.50. See
 [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for metrics, limitations, and the
 pseudo-label/review loop used to expand the benchmark without drawing every
 box manually.

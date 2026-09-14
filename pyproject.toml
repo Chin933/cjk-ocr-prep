@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalization"
-version = "1.2.0.dev0"
+version = "1.3.0.dev0"
 description = "Hierarchical layout and reading-order analysis for historical Chinese documents"
 readme = "README.md"
 requires-python = ">=3.10"
