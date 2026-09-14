@@ -139,3 +139,8 @@ cumulative horizontal drift in a chain. Continuation, annotation, and
 next-record edges remain separate in the serialized graph. These invariants
 are run with `training/evaluate_glyph_graph.py`; they are structural guards,
 not a substitute for manually reviewed relation precision and reading order.
+The six reviewed upper records on the mixed-size page are now emitted as
+mutually exclusive cells and match one-to-one at IoU 0.45 with 100% precision
+and recall. Irregular lower records are emitted as `compound` groups whose
+primary and annotation chain membership is authoritative; their enclosing
+bounding box is only a search envelope and may overlap a neighbouring group.

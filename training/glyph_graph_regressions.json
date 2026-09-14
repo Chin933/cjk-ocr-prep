@@ -11,6 +11,17 @@
       "image": "archive_113_p0054.jpg",
       "node_count": [400, 650],
       "chain_count": [180, 350],
+      "evaluation_region": [80, 195, 757, 560],
+      "gold_records": [
+        [95, 202, 236, 558],
+        [236, 202, 335, 558],
+        [335, 202, 435, 558],
+        [435, 202, 535, 558],
+        [535, 202, 636, 558],
+        [636, 202, 757, 558]
+      ],
+      "min_record_recall": 0.95,
+      "min_record_precision": 0.95,
       "max_wide_large_chains": 0,
       "barrier": {"top_y": 530, "bottom_y": 590, "max_crossings": 0},
       "upper": {"start_y": 202, "end_y": 558, "min_small": 60, "min_large": 30},

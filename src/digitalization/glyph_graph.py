@@ -18,6 +18,7 @@ from PIL import Image
 from .content_graph import (
     _estimate_glyph_scale,
     _horizontal_bands,
+    _vertical_frame_bounds,
 )
 from .layout import Box, _binarize
 
@@ -83,6 +84,28 @@ class GlyphChain:
 
 
 @dataclass
+class GlyphRecord:
+    id: str
+    bbox: Box
+    primary_chain_id: str
+    annotation_chain_ids: list[str]
+    geometry: str
+    order: int
+    confidence: float
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "bbox": self.bbox.as_list(),
+            "primary_chain_id": self.primary_chain_id,
+            "annotation_chain_ids": self.annotation_chain_ids,
+            "geometry": self.geometry,
+            "order": self.order,
+            "confidence": round(self.confidence, 4),
+        }
+
+
+@dataclass
 class GlyphGraph:
     width: int
     height: int
@@ -91,6 +114,7 @@ class GlyphGraph:
     nodes: list[GlyphNode]
     chains: list[GlyphChain]
     relations: list[GlyphRelation]
+    records: list[GlyphRecord]
 
     def to_dict(self) -> dict:
         return {
@@ -99,11 +123,12 @@ class GlyphGraph:
             "region": self.region.as_list(),
             "glyph_scale": round(self.glyph_scale, 2),
             "reading_order": [
-                chain.id for chain in sorted(self.chains, key=lambda item: item.order)
+                record.id for record in sorted(self.records, key=lambda item: item.order)
             ],
             "nodes": [node.to_dict() for node in self.nodes],
             "chains": [chain.to_dict() for chain in self.chains],
             "relations": [relation.to_dict() for relation in self.relations],
+            "records": [record.to_dict() for record in self.records],
         }
 
 
@@ -573,6 +598,72 @@ def _split_annotation_chains(
     return output
 
 
+def _demote_off_lattice_primaries(
+    chains: list[GlyphChain],
+    nodes: list[GlyphNode],
+    bands: list[tuple[int, int]],
+    region: Box,
+    scale: float,
+) -> None:
+    """Use repeated primary pitch to reject large-looking fused annotation lanes."""
+    for start, end in bands:
+        top, bottom = region.y1 + start, region.y1 + end
+        band_nodes = [node for node in nodes if top <= node.center_y < bottom]
+        small_sizes = [
+            node.local_scale for node in band_nodes if node.scale_class == "small"
+        ]
+        large_sizes = [
+            node.local_scale for node in band_nodes if node.scale_class == "large"
+        ]
+        if len(small_sizes) < 8 or len(large_sizes) < 4:
+            continue
+        median_small = float(np.median(small_sizes))
+        scale_ratio = median_small / float(np.median(large_sizes))
+        if not 0.45 <= scale_ratio <= 0.82 or median_small < scale * 0.50:
+            continue
+        primaries = sorted(
+            (
+                chain
+                for chain in chains
+                if chain.scale_class == "large"
+                and len(chain.node_ids) >= 2
+                and max(0, min(bottom, chain.bbox.y2) - max(top, chain.bbox.y1))
+                / max(1, chain.bbox.height)
+                >= 0.65
+            ),
+            key=lambda item: item.center_x,
+        )
+        gaps = [
+            right.center_x - left.center_x
+            for left, right in zip(primaries, primaries[1:])
+        ]
+        pitch_gaps = [gap for gap in gaps if scale * 2.25 <= gap <= scale * 4.2]
+        if len(pitch_gaps) < 3:
+            continue
+        pitch = float(np.median(pitch_gaps))
+        best: tuple[int, float, set[str]] | None = None
+        for anchor in primaries:
+            selected = set()
+            residual_sum = 0.0
+            for candidate in primaries:
+                steps = round((candidate.center_x - anchor.center_x) / pitch)
+                residual = abs(candidate.center_x - anchor.center_x - steps * pitch)
+                if residual <= pitch * 0.24:
+                    selected.add(candidate.id)
+                    residual_sum += residual
+            score = (len(selected), -residual_sum, selected)
+            if best is None or score[:2] > best[:2]:
+                best = score
+        if best is None:
+            continue
+        selected = best[2]
+        if len(selected) < 4 or len(selected) / max(1, len(primaries)) < 0.65:
+            continue
+        for primary in primaries:
+            if primary.id not in selected:
+                primary.scale_class = "small"
+
+
 def _structural_relations(
     chains: list[GlyphChain], scale: float
 ) -> list[GlyphRelation]:
@@ -633,6 +724,136 @@ def _structural_relations(
     return relations
 
 
+def _make_records(
+    chains: list[GlyphChain],
+    nodes: list[GlyphNode],
+    relations: list[GlyphRelation],
+    bands: list[tuple[int, int]],
+    region: Box,
+    scale: float,
+    frame_bounds: tuple[int, int],
+) -> list[GlyphRecord]:
+    """Build record hypotheses only in bands with a genuine two-font mixture."""
+    by_chain = {chain.id: chain for chain in chains}
+    attached: dict[str, list[str]] = {}
+    for relation in relations:
+        if relation.relation == "annotates":
+            attached.setdefault(relation.target, []).append(relation.source)
+    records = []
+    for start, end in bands:
+        top, bottom = region.y1 + start, region.y1 + end
+        band_nodes = [node for node in nodes if top <= node.center_y < bottom]
+        small_sizes = [
+            node.local_scale for node in band_nodes if node.scale_class == "small"
+        ]
+        large_sizes = [
+            node.local_scale for node in band_nodes if node.scale_class == "large"
+        ]
+        if len(small_sizes) < 8 or len(large_sizes) < 4:
+            continue
+        median_small = float(np.median(small_sizes))
+        scale_ratio = median_small / float(np.median(large_sizes))
+        # Punctuation may form a coherent narrow lane but is much smaller than
+        # a plausible character.  A mixed-size record band needs both a clear
+        # relative separation and a small mode that remains character-sized.
+        if not 0.45 <= scale_ratio <= 0.82 or median_small < scale * 0.50:
+            continue
+        primaries = [
+            chain
+            for chain in chains
+            if chain.scale_class == "large"
+            and len(chain.node_ids) >= 2
+            and max(0, min(bottom, chain.bbox.y2) - max(top, chain.bbox.y1))
+            / max(1, chain.bbox.height)
+            >= 0.65
+        ]
+        band_records = []
+        for primary in primaries:
+            annotation_ids = sorted(set(attached.get(primary.id, [])))
+            items = [primary, *(by_chain[item] for item in annotation_ids)]
+            bbox = Box(
+                min(item.bbox.x1 for item in items),
+                min(item.bbox.y1 for item in items),
+                max(item.bbox.x2 for item in items),
+                max(item.bbox.y2 for item in items),
+            )
+            confidence = min(
+                1.0,
+                0.35
+                + 0.12 * min(4, len(primary.node_ids))
+                + 0.05 * min(3, len(annotation_ids)),
+            )
+            band_records.append(
+                GlyphRecord(
+                    "",
+                    bbox,
+                    primary.id,
+                    annotation_ids,
+                    "compound",
+                    0,
+                    confidence,
+                )
+            )
+
+        ordered_primaries = sorted(primaries, key=lambda item: item.center_x)
+        gaps = [
+            right.center_x - left.center_x
+            for left, right in zip(ordered_primaries, ordered_primaries[1:])
+        ]
+        if len(gaps) >= 3:
+            pitch = float(np.median(gaps))
+            regular = sum(abs(gap - pitch) <= pitch * 0.25 for gap in gaps)
+            if regular / len(gaps) >= 0.80:
+                left_frame, right_frame = frame_bounds
+                boundaries = [float(region.x1 + left_frame)]
+                boundaries.extend(
+                    (left.center_x + right.center_x) / 2
+                    for left, right in zip(ordered_primaries, ordered_primaries[1:])
+                )
+                boundaries.append(float(region.x1 + right_frame))
+                by_primary = {
+                    item.primary_chain_id: item for item in band_records
+                }
+                for index, primary in enumerate(ordered_primaries):
+                    record = by_primary[primary.id]
+                    record.bbox = Box(
+                        int(round(boundaries[index])),
+                        top,
+                        int(round(boundaries[index + 1])),
+                        bottom,
+                    )
+                    record.geometry = "cell"
+
+        lanes: list[list[GlyphRecord]] = []
+        for record in sorted(
+            band_records,
+            key=lambda item: -by_chain[item.primary_chain_id].center_x,
+        ):
+            center = by_chain[record.primary_chain_id].center_x
+            candidates = [
+                (abs(center - float(np.median([
+                    by_chain[item.primary_chain_id].center_x for item in lane
+                ]))), index)
+                for index, lane in enumerate(lanes)
+            ]
+            if candidates and min(candidates)[0] <= scale * 0.82:
+                lanes[min(candidates)[1]].append(record)
+            else:
+                lanes.append([record])
+        lanes.sort(
+            key=lambda lane: -float(
+                np.median([by_chain[item.primary_chain_id].center_x for item in lane])
+            )
+        )
+        for lane in lanes:
+            records.extend(sorted(lane, key=lambda item: item.bbox.y1))
+
+    for order, record in enumerate(records):
+        record.id = f"record_{order:05d}"
+        record.order = order
+    return records
+
+
 def detect_glyph_graph(image: Image.Image, region: Box | None = None) -> GlyphGraph:
     """Build a multi-scale 2-D glyph and relation graph without OCR."""
     rgb = image.convert("RGB")
@@ -657,9 +878,43 @@ def detect_glyph_graph(image: Image.Image, region: Box | None = None) -> GlyphGr
         for relation in continuation
         if node_to_chain[relation.source] == node_to_chain[relation.target]
     ]
+    _demote_off_lattice_primaries(chains, nodes, bands, region, scale)
     chains = _split_annotation_chains(chains, nodes, scale)
     relations = [*continuation, *_structural_relations(chains, scale)]
-    return GlyphGraph(width, height, region, scale, nodes, chains, relations)
+    records = _make_records(
+        chains,
+        nodes,
+        relations,
+        bands,
+        region,
+        scale,
+        _vertical_frame_bounds(binary),
+    )
+    record_by_primary = {record.primary_chain_id: record for record in records}
+    annotation_pairs = {
+        (annotation_id, record.primary_chain_id)
+        for record in records
+        for annotation_id in record.annotation_chain_ids
+    }
+    filtered_relations = []
+    for relation in relations:
+        if relation.relation == "annotates":
+            if (relation.source, relation.target) in annotation_pairs:
+                filtered_relations.append(relation)
+            continue
+        if relation.relation == "next_record":
+            source = record_by_primary.get(relation.source)
+            target = record_by_primary.get(relation.target)
+            if source is None or target is None or source.order >= target.order:
+                continue
+            source_chain = next(chain for chain in chains if chain.id == relation.source)
+            target_chain = next(chain for chain in chains if chain.id == relation.target)
+            if abs(source_chain.center_x - target_chain.center_x) <= scale * 0.82:
+                filtered_relations.append(relation)
+            continue
+        filtered_relations.append(relation)
+    relations = filtered_relations
+    return GlyphGraph(width, height, region, scale, nodes, chains, relations, records)
 
 
 def draw_glyph_graph(image: Image.Image, graph: GlyphGraph) -> Image.Image:
@@ -705,4 +960,15 @@ def draw_glyph_graph(image: Image.Image, graph: GlyphGraph) -> Image.Image:
                 target.bbox.y1,
             )
         draw.line(endpoints, fill=color, width=2)
+    for record in graph.records:
+        primary = by_chain[record.primary_chain_id]
+        if record.geometry == "cell":
+            draw.rectangle(record.bbox.as_list(), outline="#8338ec", width=2)
+        else:
+            draw.rectangle(primary.bbox.as_list(), outline="#8338ec", width=3)
+        draw.text(
+            (primary.bbox.x1 + 2, primary.bbox.y1 + 2),
+            f"R{record.order}",
+            fill="#6a00f4",
+        )
     return output

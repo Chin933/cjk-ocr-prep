@@ -36,6 +36,8 @@ def test_glyph_graph_keeps_continuation_and_record_edges_distinct() -> None:
     payload = graph.to_dict()
     assert payload["nodes"]
     assert payload["chains"]
+    assert len(payload["records"]) == 2
+    assert payload["reading_order"] == ["record_00000", "record_00001"]
 
 
 def test_glyph_graph_splits_a_horizontally_fused_multi_glyph_blob() -> None:

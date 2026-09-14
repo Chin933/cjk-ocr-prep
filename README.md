@@ -74,6 +74,7 @@ print(content_graph.streams, content_graph.edges)
 # Mixed-size fields expose glyph instances and typed structural relations.
 glyph_graph = detect_glyph_graph(image)
 print(glyph_graph.nodes, glyph_graph.chains, glyph_graph.relations)
+print(glyph_graph.records)  # rectangular cells or compound record groups
 ```
 
 ## Command line
@@ -116,6 +117,7 @@ The current development version combines:
 - repeated local primary-stream pitch for grouping mixed-size record cells
 - local glyph reconstruction and within-band multi-scale classification
 - separate continuation, annotation, and next-record relations
+- rectangular cells for regular records and compound groups for irregular records
 - cumulative-drift constraints that stop tracks migrating into adjacent columns
 - horizontal-rule barriers that prevent content tracks from crossing major sections
 - content-stream adjacency, attachment relations, and explicit reading edges
