@@ -121,3 +121,12 @@ glyph scale, links observations one-to-one into bounded vertical streams, and
 treats long horizontal rules as barriers that tracks cannot cross. The first
 two regression pages require recovery of marginal headings, independent upper
 and lower stream populations, and zero tracks crossing major section rules.
+The regular page currently matches all 14 manually reviewed streams with 100%
+one-to-one precision and recall. On the mixed-size page, repeated local
+primary-stream pitch groups the six reviewed upper records with 100% precision
+and recall while keeping the horizontal section rule uncrossed. The lower
+record field is deliberately not assigned a headline accuracy yet: it still
+contains overlapping large-name streams, smaller annotation columns, and
+streams that begin and end at different heights. Its current regression guards
+against reintroducing gross multi-column merges while the 2-D grouping model is
+developed.

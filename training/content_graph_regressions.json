@@ -3,15 +3,48 @@
     {
       "image": "archive_141_p0051.jpg",
       "text_stream_count": [14, 28],
+      "gold_streams": [
+        [298, 94, 332, 229],
+        [338, 94, 373, 229],
+        [375, 94, 409, 229],
+        [709, 94, 744, 229],
+        [744, 94, 782, 229],
+        [108, 253, 184, 1162],
+        [183, 253, 258, 1162],
+        [257, 253, 334, 1162],
+        [333, 253, 408, 1162],
+        [407, 253, 484, 1162],
+        [483, 253, 558, 1162],
+        [557, 253, 634, 1162],
+        [633, 253, 708, 1162],
+        [707, 253, 784, 1162]
+      ],
+      "min_stream_recall": 0.95,
+      "min_stream_precision": 0.95,
       "header": {"end_y": 230, "min_streams": 5},
       "barrier": {"top_y": 230, "bottom_y": 260, "max_crossing_streams": 0}
     },
     {
       "image": "archive_113_p0054.jpg",
-      "text_stream_count": [25, 48],
+      "text_stream_count": [35, 65],
+      "evaluation_region": [80, 195, 757, 560],
+      "gold_groups": [
+        [95, 202, 236, 558],
+        [236, 202, 335, 558],
+        [335, 202, 435, 558],
+        [435, 202, 535, 558],
+        [535, 202, 636, 558],
+        [636, 202, 757, 558]
+      ],
+      "min_group_recall": 0.95,
+      "min_group_precision": 0.95,
       "barrier": {"top_y": 530, "bottom_y": 590, "max_crossing_streams": 0},
       "upper": {"end_y": 560, "min_streams": 10},
-      "lower": {"start_y": 560, "min_streams": 15}
+      "lower": {
+        "start_y": 560,
+        "min_streams": 20,
+        "max_wide_narrow_streams": 0
+      }
     }
   ]
 }

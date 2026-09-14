@@ -106,6 +106,7 @@ The current development version combines:
 - local detection of passages that change from one major column to two small columns
 - glyph-support intersection and connected-component topology for short local subcolumns
 - bottom-up multi-scale lane observations linked into bounded vertical text streams
+- repeated local primary-stream pitch for grouping mixed-size record cells
 - horizontal-rule barriers that prevent content tracks from crossing major sections
 - content-stream adjacency, attachment relations, and explicit reading edges
 - page-shape gating so a portrait centre rule is not mistaken for a two-page gutter
@@ -126,6 +127,11 @@ major-column recall, and 50.00% local-subcolumn recall at IoU 0.50. See
 [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for metrics, limitations, and the
 pseudo-label/review loop used to expand the benchmark without drawing every
 box manually.
+
+On the two visually reviewed archive regressions, the content graph recovers
+all 14 reviewed streams on the regular page and all six reviewed upper record
+groups on the mixed-size page, each at 100% one-to-one precision and recall.
+The irregular lower record field remains the active segmentation target.
 
 ## Author
 

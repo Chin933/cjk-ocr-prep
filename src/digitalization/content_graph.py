@@ -286,7 +286,10 @@ def _link_streams(
                 width_ratio = max(source.bbox.width, target.bbox.width) / max(
                     1, min(source.bbox.width, target.bbox.width)
                 )
-                if distance <= max(scale * 0.45, width * 0.48) and width_ratio <= 2.8:
+                if (
+                    distance <= max(scale * 0.45, width * 0.48)
+                    and width_ratio <= 2.8
+                ):
                     candidate_pairs.append(
                         (distance / max(width, scale), width_ratio, left, right)
                     )
@@ -343,7 +346,12 @@ def _link_streams(
             for right_index in range(left_index + 1, len(streams)):
                 right = streams[right_index]
                 distance = abs(left.center_x - right.center_x)
-                if distance >= scale * 0.90:
+                combined_left = min(left.bbox.x1, right.bbox.x1)
+                combined_right = max(left.bbox.x2, right.bbox.x2)
+                if (
+                    distance >= scale * 0.90
+                    or combined_right - combined_left > scale * 1.48
+                ):
                     continue
                 right_levels = {
                     observations[int(item.rsplit("_", 1)[1])].level
@@ -433,10 +441,28 @@ def _link_streams(
                     [min(abs(y - other) for other in large_centers) for y in small_centers]
                 )
             )
-            if 0.45 <= count_ratio <= 2.50 and alignment <= scale * 0.80:
-                candidates.append((alignment, horizontal_gap, primary))
+            narrow_companion = (
+                satellite.median_width <= scale * 0.55
+                and primary.median_width >= scale * 0.75
+                and abs(satellite.center_x - primary.center_x) <= scale * 1.25
+            )
+            synchronized = (
+                0.45 <= count_ratio <= 2.50 and alignment <= scale * 0.80
+            )
+            if narrow_companion or synchronized:
+                direction_penalty = (
+                    0.0 if satellite.center_x > primary.center_x else scale * 0.18
+                )
+                candidates.append(
+                    (
+                        direction_penalty
+                        + abs(satellite.center_x - primary.center_x),
+                        alignment,
+                        primary,
+                    )
+                )
         if candidates:
-            alignment, _, primary = min(candidates, key=lambda item: (item[0], item[1]))
+            _, alignment, primary = min(candidates, key=lambda item: (item[0], item[1]))
             satellite.role = "satellite"
             attachment_edges.append(
                 ContentEdge(
@@ -486,8 +512,135 @@ def _link_streams(
     return streams, edges
 
 
+def _vertical_frame_bounds(binary: np.ndarray) -> tuple[int, int]:
+    """Return conservative inner bounds when long left/right frame rules exist."""
+    height, width = binary.shape
+    opened = cv2.morphologyEx(
+        binary,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (1, max(30, int(height * 0.55)))),
+    )
+    rule_columns = (opened > 0).mean(axis=0) > 0.18
+    runs = _runs(rule_columns, merge_gap=2)
+    left_candidates = [end for start, end in runs if (start + end) / 2 < width * 0.25]
+    right_candidates = [start for start, end in runs if (start + end) / 2 > width * 0.75]
+    left = max(left_candidates, default=0)
+    right = min(right_candidates, default=width)
+    if right - left < width * 0.45:
+        return 0, width
+    return left, right
+
+
+def _regular_record_groups(
+    streams: list[TextStream],
+    binary: np.ndarray,
+    region: Box,
+    scale: float,
+    bands: list[tuple[int, int]],
+) -> tuple[list[StreamGroup], set[str]]:
+    """Group local streams around a repeated sequence of primary text anchors.
+
+    Many record pages alternate a broad primary name stream with narrower
+    annotations.  The repeated primary-stream pitch is stronger evidence for
+    record boundaries than any single whitespace cut.
+    """
+    frame_left, frame_right = _vertical_frame_bounds(binary)
+    groups: list[StreamGroup] = []
+    assigned: set[str] = set()
+    for start, end in bands:
+        band_height = end - start
+        if band_height < scale * 6:
+            continue
+        absolute_top = region.y1 + start
+        absolute_bottom = region.y1 + end
+        candidates = []
+        for stream in streams:
+            overlap = max(
+                0,
+                min(absolute_bottom, stream.bbox.y2)
+                - max(absolute_top, stream.bbox.y1),
+            )
+            if (
+                stream.role == "text"
+                and stream.median_width >= scale * 0.82
+                and overlap / max(1, band_height) >= 0.42
+                and region.x1 + frame_left <= stream.center_x <= region.x1 + frame_right
+            ):
+                candidates.append(stream)
+        candidates.sort(key=lambda item: item.center_x)
+        gaps = [
+            right.center_x - left.center_x
+            for left, right in zip(candidates, candidates[1:])
+        ]
+        pitch_gaps = [gap for gap in gaps if scale * 2.25 <= gap <= scale * 4.2]
+        if len(pitch_gaps) < 3:
+            continue
+        pitch = float(np.median(pitch_gaps))
+
+        clusters: list[list[TextStream]] = []
+        for stream in candidates:
+            if clusters and stream.center_x - clusters[-1][-1].center_x < pitch * 0.74:
+                clusters[-1].append(stream)
+            else:
+                clusters.append([stream])
+        anchors = [
+            max(
+                cluster,
+                key=lambda item: (item.bbox.height, item.confidence, item.median_width),
+            )
+            for cluster in clusters
+        ]
+        if len(anchors) < 4:
+            continue
+
+        boundaries = [float(region.x1 + frame_left)]
+        boundaries.extend(
+            (left.center_x + right.center_x) / 2
+            for left, right in zip(anchors, anchors[1:])
+        )
+        boundaries.append(float(region.x1 + frame_right))
+        for index, anchor in enumerate(anchors):
+            left = boundaries[index]
+            right = boundaries[index + 1]
+            members = []
+            for stream in streams:
+                overlap = max(
+                    0,
+                    min(absolute_bottom, stream.bbox.y2)
+                    - max(absolute_top, stream.bbox.y1),
+                )
+                if (
+                    stream.role in {"text", "satellite"}
+                    and overlap / max(1, stream.bbox.height) >= 0.65
+                    and left <= stream.center_x < right
+                ):
+                    members.append(stream.id)
+            if anchor.id not in members:
+                members.append(anchor.id)
+            assigned.update(members)
+            groups.append(
+                StreamGroup(
+                    f"record_{len(groups):04d}",
+                    Box(
+                        int(round(left)),
+                        absolute_top,
+                        int(round(right)),
+                        absolute_bottom,
+                    ),
+                    sorted(set(members)),
+                    0,
+                )
+            )
+    return groups, assigned
+
+
 def _group_streams(
-    streams: list[TextStream], edges: list[ContentEdge]
+    streams: list[TextStream],
+    edges: list[ContentEdge],
+    binary: np.ndarray,
+    region: Box,
+    scale: float,
+    bands: list[tuple[int, int]],
 ) -> list[StreamGroup]:
     by_id = {stream.id: stream for stream in streams}
     attached: dict[str, list[str]] = {}
@@ -513,6 +666,17 @@ def _group_streams(
                 0,
             )
         )
+    record_groups, assigned = _regular_record_groups(
+        streams, binary, region, scale, bands
+    )
+    groups = [
+        group
+        for group in groups
+        if not any(stream_id in assigned for stream_id in group.stream_ids)
+    ]
+    groups.extend(record_groups)
+    for index, group in enumerate(groups):
+        group.id = f"group_{index:04d}"
     for order, group in enumerate(
         sorted(groups, key=lambda item: (-item.bbox.x2, item.bbox.y1))
     ):
@@ -528,8 +692,9 @@ def detect_content_graph(image: Image.Image, region: Box | None = None) -> Conte
     binary = _binarize(rgb)[region.y1 : region.y2, region.x1 : region.x2]
     ink = _remove_spanning_rules(binary)
     scale = _estimate_glyph_scale(ink)
+    bands = _horizontal_bands(binary, scale)
     observations: list[LaneObservation] = []
-    for band_index, (start, end) in enumerate(_horizontal_bands(binary, scale)):
+    for band_index, (start, end) in enumerate(bands):
         band_region = Box(region.x1, region.y1 + start, region.x2, region.y1 + end)
         band_observations = _observe_lanes(ink[start:end], band_region, scale)
         for item in band_observations:
@@ -543,20 +708,23 @@ def detect_content_graph(image: Image.Image, region: Box | None = None) -> Conte
                 )
             )
     streams, edges = _link_streams(observations, ink, region, scale)
-    groups = _group_streams(streams, edges)
+    groups = _group_streams(streams, edges, binary, region, scale, bands)
     return ContentGraph(
         width, height, region, scale, observations, streams, edges, groups
     )
 
 
-def draw_content_graph(image: Image.Image, graph: ContentGraph) -> Image.Image:
+def draw_content_graph(
+    image: Image.Image, graph: ContentGraph, *, show_observations: bool = False
+) -> Image.Image:
     """Draw stream extents, centre tracks, and high-confidence order edges."""
     from PIL import ImageDraw
 
     output = image.convert("RGB").copy()
     draw = ImageDraw.Draw(output)
-    for observation in graph.observations:
-        draw.rectangle(observation.bbox.as_list(), outline="#b8e0d2", width=1)
+    if show_observations:
+        for observation in graph.observations:
+            draw.rectangle(observation.bbox.as_list(), outline="#b8e0d2", width=1)
     by_id = {stream.id: stream for stream in graph.streams}
     for stream in graph.streams:
         draw.rectangle(stream.bbox.as_list(), outline="#0077b6", width=2)
@@ -572,4 +740,9 @@ def draw_content_graph(image: Image.Image, graph: ContentGraph) -> Image.Image:
         draw.line((source.center_x, y, target.center_x, y), fill="#ff9f1c", width=2)
     for group in graph.groups:
         draw.rectangle(group.bbox.as_list(), outline="#8338ec", width=2)
+        draw.text(
+            (group.bbox.x1 + 2, group.bbox.y1 + 2),
+            f"G{group.order}",
+            fill="#6a00f4",
+        )
     return output
