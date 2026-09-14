@@ -44,7 +44,12 @@ pip install -e ".[dev]"
 
 ```python
 from PIL import Image
-from digitalization import detect_layout, detect_region_graph, detect_rule_graph
+from digitalization import (
+    detect_content_graph,
+    detect_layout,
+    detect_region_graph,
+    detect_rule_graph,
+)
 
 image = Image.open("page.jpg")
 document = detect_layout(image)
@@ -60,6 +65,10 @@ print(rule_graph.junctions)
 # Each cell includes its true polygon, bounding box, area, neighbours and order.
 region_graph = detect_region_graph(image)
 print(region_graph.cells)
+
+# Local ink observations are linked into bounded vertical text streams.
+content_graph = detect_content_graph(image)
+print(content_graph.streams, content_graph.edges)
 ```
 
 ## Command line
@@ -71,7 +80,9 @@ digitalization-layout page.jpg \
   --graph-output page.rules.json \
   --graph-overlay page.rules.jpg \
   --region-graph-output page.regions.json \
-  --region-graph-overlay page.regions.jpg
+  --region-graph-overlay page.regions.jpg \
+  --content-graph-output page.content.json \
+  --content-graph-overlay page.content.jpg
 ```
 
 The JSON contains both the hierarchy and a flattened list of ordered leaf IDs.
@@ -94,6 +105,9 @@ The current development version combines:
 - page-wide alignment guides shared across upper and lower sections
 - local detection of passages that change from one major column to two small columns
 - glyph-support intersection and connected-component topology for short local subcolumns
+- bottom-up multi-scale lane observations linked into bounded vertical text streams
+- horizontal-rule barriers that prevent content tracks from crossing major sections
+- content-stream adjacency, attachment relations, and explicit reading edges
 - page-shape gating so a portrait centre rule is not mistaken for a two-page gutter
 - content classification that separates thin spanning rules from actual text ink
 - strict local horizontal separators inside narrow columns
@@ -106,9 +120,9 @@ It is not part of the production detector.
 
 ## Development status
 
-Version `1.3.0.dev0` is an active layout-tree/region-graph prototype. The two-page seed
-benchmark currently reaches 98.79% pairwise reading-order accuracy and 82.86%
-major-column recall at IoU 0.50. See
+Version `1.4.0.dev0` is an active layout-tree/content-graph prototype. The two-page seed
+benchmark currently reaches 98.57% pairwise reading-order accuracy, 82.86%
+major-column recall, and 50.00% local-subcolumn recall at IoU 0.50. See
 [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for metrics, limitations, and the
 pseudo-label/review loop used to expand the benchmark without drawing every
 box manually.

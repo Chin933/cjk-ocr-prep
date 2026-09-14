@@ -8,6 +8,7 @@ from pathlib import Path
 
 from PIL import Image
 
+from .content_graph import detect_content_graph, draw_content_graph
 from .layout import (
     detect_layout,
     detect_region_graph,
@@ -30,6 +31,8 @@ def main() -> None:
     parser.add_argument("--graph-overlay", type=Path)
     parser.add_argument("--region-graph-output", type=Path)
     parser.add_argument("--region-graph-overlay", type=Path)
+    parser.add_argument("--content-graph-output", type=Path)
+    parser.add_argument("--content-graph-overlay", type=Path)
     args = parser.parse_args()
 
     with Image.open(args.image) as source:
@@ -64,6 +67,17 @@ def main() -> None:
         if args.region_graph_overlay:
             args.region_graph_overlay.parent.mkdir(parents=True, exist_ok=True)
             draw_region_graph(image, region_graph).save(args.region_graph_overlay)
+    if args.content_graph_output or args.content_graph_overlay:
+        content_graph = detect_content_graph(image)
+        if args.content_graph_output:
+            args.content_graph_output.parent.mkdir(parents=True, exist_ok=True)
+            args.content_graph_output.write_text(
+                json.dumps(content_graph.to_dict(), ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        if args.content_graph_overlay:
+            args.content_graph_overlay.parent.mkdir(parents=True, exist_ok=True)
+            draw_content_graph(image, content_graph).save(args.content_graph_overlay)
 
     print(
         f"pages={len(result.root.children)} "

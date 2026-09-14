@@ -82,13 +82,13 @@ python training/synthetic_benchmark.py \
 
 ## Current seed result
 
-On the two PowerPoint pages, version `1.3.0.dev0` currently reaches 98.79%
+On the two PowerPoint pages, version `1.4.0.dev0` currently reaches 98.57%
 pairwise reading-order accuracy. IoU@0.50 recall is 90.00% for blocks, 82.86%
-for major columns, and 48.08% for local subcolumns. Recovering parent columns
+for major columns, and 50.00% for local subcolumns. Recovering parent columns
 around narrow aligned half-lanes raises major-column IoU@0.75 recall from
 28.57% to 55.71% without changing leaf order. On 40 unseen generated layouts
-spanning ten grammars, region IoU@0.50 recall is 76.44% and pairwise order
-accuracy is 96.56%. The local 2-D ruling graph raises the independent
+spanning ten grammars, region IoU@0.50 recall is 76.25% and pairwise order
+accuracy is 96.52%. The local 2-D ruling graph raises the independent
 within-column grammar from 51.04% to 64.58% on the same fixed seeds. Its
 segments retain endpoints and junctions, preventing a short local rule from
 being silently extended across the page. This per-grammar result remains a
@@ -101,16 +101,23 @@ order from the tree. A T-junction test verifies that a divider on one side of a
 page does not split its neighbour. Pages without enough explicit ruling evidence
 remain the responsibility of the content-alignment tree.
 
-Across all 76 current real images, the detector now averages 53.71 text regions
+Across all 76 current real images, the detector now averages 50.58 text regions
 per image, with no automatic audit flags. A second target-only archive sample
 contains 40 pages selected from 31 volumes and eight detected layout families.
 The archive sample is a diversity and failure-discovery set, not ground truth:
-its current mean is 24.40 text regions per page, and its 25 wide-region warnings
+its current mean is 23.25 text regions per page, and its 25 wide-region warnings
 show that dense mixed-size pages remain the next major under-segmentation target.
 
-Error diagnosis on the seed truth separates failures by geometry. Of the 54
-remaining subcolumn misses, 25 are unsplit horizontal merges and 17 have an
+Error diagnosis on the seed truth separates failures by geometry. Of the 52
+remaining subcolumn misses, 28 are unsplit horizontal merges and 15 have an
 overlong vertical extent; these require different evidence. The current local
-2-D glyph-support model improved subcolumn recall from 38.46% to 48.08%
+2-D glyph-support model improved subcolumn recall from 38.46% to 50.00%
 without OCR, while a mechanical adjacent-column grouping experiment was
 rejected because it reduced independent synthetic reading-order accuracy.
+
+The next-stage content graph is evaluated separately on visually reviewed
+archive pages. It starts from overlapping local ink observations, estimates
+glyph scale, links observations one-to-one into bounded vertical streams, and
+treats long horizontal rules as barriers that tracks cannot cross. The first
+two regression pages require recovery of marginal headings, independent upper
+and lower stream populations, and zero tracks crossing major section rules.

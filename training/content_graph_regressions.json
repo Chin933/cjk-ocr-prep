@@ -1,0 +1,17 @@
+{
+  "records": [
+    {
+      "image": "archive_141_p0051.jpg",
+      "text_stream_count": [14, 28],
+      "header": {"end_y": 230, "min_streams": 5},
+      "barrier": {"top_y": 230, "bottom_y": 260, "max_crossing_streams": 0}
+    },
+    {
+      "image": "archive_113_p0054.jpg",
+      "text_stream_count": [25, 48],
+      "barrier": {"top_y": 530, "bottom_y": 590, "max_crossing_streams": 0},
+      "upper": {"end_y": 560, "min_streams": 10},
+      "lower": {"start_y": 560, "min_streams": 15}
+    }
+  ]
+}

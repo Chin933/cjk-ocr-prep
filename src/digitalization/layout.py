@@ -856,7 +856,19 @@ def _split_partial_subcolumns(
     vertical_kernel = cv2.getStructuringElement(
         cv2.MORPH_RECT, (1, max(40, int(width * 0.80)))
     )
+    rule_bridge = cv2.getStructuringElement(
+        cv2.MORPH_RECT, (1, max(7, int(width * 0.20)))
+    )
+    rule_source = cv2.morphologyEx(crop, cv2.MORPH_CLOSE, rule_bridge)
     vertical_rules = cv2.morphologyEx(crop, cv2.MORPH_OPEN, vertical_kernel)
+    bridged_rules = cv2.morphologyEx(rule_source, cv2.MORPH_OPEN, vertical_kernel)
+    edge = max(3, int(width * 0.12))
+    vertical_rules[:, :edge] = np.maximum(
+        vertical_rules[:, :edge], bridged_rules[:, :edge]
+    )
+    vertical_rules[:, -edge:] = np.maximum(
+        vertical_rules[:, -edge:], bridged_rules[:, -edge:]
+    )
     glyphs = cv2.subtract(crop, vertical_rules)
     left_rows = (
         (glyphs[:, int(width * 0.05) : int(width * 0.46)] > 0).mean(axis=1)
@@ -891,6 +903,9 @@ def _split_partial_subcolumns(
         )
         center_slice = x_profile[int(width * 0.35) : int(width * 0.65)]
         valley = int(width * 0.35) + int(np.argmin(center_slice))
+        left_mass = int((glyphs[start:end, :valley] > 0).sum())
+        right_mass = int((glyphs[start:end, valley:] > 0).sum())
+        lane_balance = min(left_mass, right_mass) / max(left_mass, right_mass, 1)
         component_mask = cv2.morphologyEx(
             (glyphs[start:end] > 0).astype(np.uint8),
             cv2.MORPH_CLOSE,
@@ -922,9 +937,29 @@ def _split_partial_subcolumns(
                 right_components += 1
         crossing_fraction = crossing_area / max(component_area, 1)
         two_component_streams = left_components >= 2 and right_components >= 2
-        if valley_ratio < 0.95 and crossing_fraction < 0.28 and two_component_streams:
+        if (
+            valley_ratio < 0.95
+            and crossing_fraction < 0.28
+            and lane_balance >= 0.38
+            and two_component_streams
+        ):
             local_runs.append((start, end))
     if local_runs:
+        refined_runs = []
+        for start, end in local_runs:
+            if end - start < int(width * 2.20):
+                padding = max(12, int(width * 0.45))
+                lower = max(0, start - padding)
+                upper = min(height, end + padding)
+                before = np.flatnonzero(states[lower:start] < 0)
+                after = np.flatnonzero(states[end:upper] < 0)
+                start = lower + int(before[-1]) + 1 if before.size else lower
+                end = end + int(after[0]) if after.size else upper
+            if refined_runs and start <= refined_runs[-1][1]:
+                refined_runs[-1] = (refined_runs[-1][0], max(refined_runs[-1][1], end))
+            else:
+                refined_runs.append((start, end))
+        local_runs = refined_runs
         runs = local_runs
     if not runs:
         return False

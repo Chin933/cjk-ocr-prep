@@ -177,6 +177,33 @@ def test_local_2d_support_recovers_short_nested_subcolumns() -> None:
     assert any("partial_subcolumn_alignment" in child.evidence for child in nested)
 
 
+def test_large_glyph_stream_is_not_split_against_sparse_border_fragments() -> None:
+    image = Image.new("RGB", (100, 500), "white")
+    draw = ImageDraw.Draw(image)
+    # Several large glyph-like objects form one real stream.  Broken marks near
+    # the border must not be promoted into a second subcolumn.
+    for y in (35, 145, 255, 365):
+        draw.rectangle((12, y, 61, y + 72), fill="black")
+        draw.rectangle((27, y + 18, 76, y + 36), fill="white")
+    for y in range(45, 455, 55):
+        draw.rectangle((88, y, 91, y + 18), fill="black")
+
+    binary = _binarize(image)
+    node = LayoutNode("region_test", "region", Box(0, 0, 100, 500))
+    counter = iter(range(100))
+    split = _split_partial_subcolumns(
+        node,
+        binary,
+        binary,
+        node.bbox,
+        LayoutConfig(),
+        900,
+        lambda prefix: f"{prefix}_{next(counter)}",
+    )
+
+    assert not split
+
+
 def test_portrait_center_rule_is_not_mistaken_for_a_book_gutter() -> None:
     image = Image.new("RGB", (500, 800), "white")
     draw = ImageDraw.Draw(image)
