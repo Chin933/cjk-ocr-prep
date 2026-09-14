@@ -1,6 +1,7 @@
+import numpy as np
 from PIL import Image, ImageDraw
 
-from digitalization import Box, detect_glyph_graph
+from digitalization import Box, detect_glyph_graph, draw_record_graph
 
 
 def test_glyph_graph_separates_local_large_and_small_scales() -> None:
@@ -56,3 +57,19 @@ def test_glyph_graph_splits_a_horizontally_fused_multi_glyph_blob() -> None:
 
     assert len(fused_area) >= 2
     assert max(node.bbox.width for node in fused_area) < 50
+
+
+def test_record_graph_draws_without_glyph_nodes() -> None:
+    image = Image.new("RGB", (220, 480), "white")
+    draw = ImageDraw.Draw(image)
+    for y in (30, 80, 130, 260, 310, 360):
+        draw.rectangle((125, y, 158, y + 34), fill="black")
+    for y in range(35, 390, 27):
+        draw.rectangle((90, y, 104, y + 16), fill="black")
+
+    graph = detect_glyph_graph(image)
+    overlay = draw_record_graph(image, graph)
+
+    assert overlay.size == image.size
+    pixels = np.asarray(overlay)
+    assert ((pixels[:, :, 0] > pixels[:, :, 1] + 40) & (pixels[:, :, 2] > 80)).any()

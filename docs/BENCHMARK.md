@@ -125,20 +125,25 @@ The regular page currently matches all 14 manually reviewed streams with 100%
 one-to-one precision and recall. On the mixed-size page, repeated local
 primary-stream pitch groups the six reviewed upper records with 100% precision
 and recall while keeping the horizontal section rule uncrossed. The lower
-record field is deliberately not assigned a headline accuracy yet: it still
-contains overlapping large-name streams, smaller annotation columns, and
-streams that begin and end at different heights. Its current regression guards
-against reintroducing gross multi-column merges while the 2-D grouping model is
-developed.
+record field now has independent, visually reviewed relation truth: 23 primary
+records, 27 annotation attachment points, eight same-lane record transitions,
+and all 253 pairwise order comparisons. The current detector matches all 23
+primaries with 100% one-to-one precision and recall, assigns all 27 reviewed
+annotations correctly, recovers all eight transitions without an extra edge,
+and orders all reviewed record pairs correctly. These are seed-page figures
+rather than a generalization claim; they make each structural layer fail
+independently when later changes regress it.
 
 Version 1.5 adds a lower-level glyph-instance graph for mixed-size fields. It
 uses a glyph-safe rule-removal scale, separates tiny fragments before local
 size clustering, smooths size labels along nearby vertical neighbours, splits
 horizontally fused multi-glyph components at supported ink valleys, and caps
 cumulative horizontal drift in a chain. Continuation, annotation, and
-next-record edges remain separate in the serialized graph. These invariants
-are run with `training/evaluate_glyph_graph.py`; they are structural guards,
-not a substitute for manually reviewed relation precision and reading order.
+next-record edges remain separate in the serialized graph. Annotation
+assignment compares horizontal distance, vertical overlap, and short same-axis
+continuation. Record transitions are inferred only after record grouping and
+cannot cross a horizontal band. These invariants and the reviewed lower-field
+truth are run with `training/evaluate_glyph_graph.py`.
 The six reviewed upper records on the mixed-size page are now emitted as
 mutually exclusive cells and match one-to-one at IoU 0.45 with 100% precision
 and recall. Irregular lower records are emitted as `compound` groups whose

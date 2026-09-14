@@ -46,6 +46,120 @@ def _record_scores(gold: list[list[int]], predicted: list) -> dict:
     }
 
 
+def _primary_matches(gold: list[list[int]], predicted: list, by_chain: dict) -> dict:
+    candidates = []
+    for gold_index, box in enumerate(gold):
+        for predicted_index, record in enumerate(predicted):
+            score = _iou(box, by_chain[record.primary_chain_id].bbox)
+            if score >= 0.45:
+                candidates.append((score, gold_index, predicted_index))
+    gold_to_predicted = {}
+    predicted_to_gold = {}
+    for _, gold_index, predicted_index in sorted(candidates, reverse=True):
+        if gold_index in gold_to_predicted or predicted_index in predicted_to_gold:
+            continue
+        gold_to_predicted[gold_index] = predicted_index
+        predicted_to_gold[predicted_index] = gold_index
+    return {
+        "gold_to_predicted": gold_to_predicted,
+        "predicted_to_gold": predicted_to_gold,
+        "recall": len(gold_to_predicted) / max(1, len(gold)),
+        "precision": len(predicted_to_gold) / max(1, len(predicted)),
+    }
+
+
+def _lower_scores(spec: dict, graph, by_chain: dict) -> dict:
+    x1, y1, x2, y2 = spec["lower_evaluation_region"]
+    predicted = [
+        record
+        for record in graph.records
+        if record.geometry == "compound"
+        and x1 <= by_chain[record.primary_chain_id].center_x <= x2
+        and y1 <= by_chain[record.primary_chain_id].bbox.y1 < y2
+    ]
+    matches = _primary_matches(spec["lower_gold_primaries"], predicted, by_chain)
+    predicted_by_primary = {
+        record.primary_chain_id: index for index, record in enumerate(predicted)
+    }
+    relation_target = {
+        relation.source: relation.target
+        for relation in graph.relations
+        if relation.relation == "annotates"
+    }
+    annotation_correct = 0
+    annotation_failures = []
+    for check in spec["lower_annotation_checks"]:
+        px, py = check["point"]
+        candidates = [
+            chain
+            for chain in graph.chains
+            if chain.scale_class == "small"
+            and chain.bbox.x1 - 3 <= px <= chain.bbox.x2 + 3
+            and chain.bbox.y1 - 3 <= py <= chain.bbox.y2 + 3
+        ]
+        candidates.sort(key=lambda chain: chain.bbox.width * chain.bbox.height)
+        if not candidates:
+            annotation_failures.append({**check, "actual": None})
+            continue
+        target = relation_target.get(candidates[0].id)
+        predicted_index = predicted_by_primary.get(target)
+        actual = matches["predicted_to_gold"].get(predicted_index)
+        if actual == check["primary"]:
+            annotation_correct += 1
+        else:
+            annotation_failures.append({**check, "actual": actual})
+
+    predicted_next = set()
+    for relation in graph.relations:
+        if relation.relation != "next_record":
+            continue
+        source = predicted_by_primary.get(relation.source)
+        target = predicted_by_primary.get(relation.target)
+        if (
+            source not in matches["predicted_to_gold"]
+            or target not in matches["predicted_to_gold"]
+        ):
+            continue
+        predicted_next.add(
+            (matches["predicted_to_gold"][source], matches["predicted_to_gold"][target])
+        )
+    gold_next = {tuple(pair) for pair in spec["lower_next_records"]}
+    matched_next = predicted_next & gold_next
+
+    comparable = correct_order = 0
+    gold_to_predicted = matches["gold_to_predicted"]
+    for left in range(len(spec["lower_gold_primaries"])):
+        for right in range(left + 1, len(spec["lower_gold_primaries"])):
+            if left not in gold_to_predicted or right not in gold_to_predicted:
+                continue
+            comparable += 1
+            if (
+                predicted[gold_to_predicted[left]].order
+                < predicted[gold_to_predicted[right]].order
+            ):
+                correct_order += 1
+    return {
+        "gold_primary_count": len(spec["lower_gold_primaries"]),
+        "predicted_primary_count": len(predicted),
+        "matched_primaries": len(matches["gold_to_predicted"]),
+        "primary_recall": round(matches["recall"], 4),
+        "primary_precision": round(matches["precision"], 4),
+        "annotation_checks": len(spec["lower_annotation_checks"]),
+        "annotation_correct": annotation_correct,
+        "annotation_failures": annotation_failures,
+        "annotation_accuracy": round(
+            annotation_correct / max(1, len(spec["lower_annotation_checks"])), 4
+        ),
+        "gold_next_count": len(gold_next),
+        "predicted_next_count": len(predicted_next),
+        "matched_next": len(matched_next),
+        "next_recall": round(len(matched_next) / max(1, len(gold_next)), 4),
+        "next_precision": round(len(matched_next) / max(1, len(predicted_next)), 4),
+        "order_pairs": comparable,
+        "order_accuracy": round(correct_order / max(1, comparable), 4),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -81,6 +195,7 @@ def main() -> None:
         )
         checks["wide_large_chains"] = wide_large <= record["max_wide_large_chains"]
         record_scores = None
+        lower_scores = None
         if "gold_records" in record:
             rx1, ry1, rx2, ry2 = record["evaluation_region"]
             predicted_records = [
@@ -98,6 +213,19 @@ def main() -> None:
             checks["record_precision"] = (
                 record_scores["precision"] >= record.get("min_record_precision", 0.0)
             )
+        if "lower_gold_primaries" in record:
+            lower_scores = _lower_scores(record, graph, by_chain)
+            for metric in (
+                "primary_recall",
+                "primary_precision",
+                "annotation_accuracy",
+                "next_recall",
+                "next_precision",
+                "order_accuracy",
+            ):
+                checks[f"lower_{metric}"] = lower_scores[metric] >= record[
+                    f"min_lower_{metric}"
+                ]
 
         if "barrier" in record:
             barrier = record["barrier"]
@@ -171,6 +299,7 @@ def main() -> None:
                 "relation_counts": relation_counts,
                 "record_count": len(graph.records),
                 "record_scores": record_scores,
+                "lower_scores": lower_scores,
                 "checks": checks,
             }
         )

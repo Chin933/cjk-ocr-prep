@@ -50,6 +50,7 @@ from digitalization import (
     detect_layout,
     detect_region_graph,
     detect_rule_graph,
+    draw_record_graph,
 )
 
 image = Image.open("page.jpg")
@@ -75,6 +76,9 @@ print(content_graph.streams, content_graph.edges)
 glyph_graph = detect_glyph_graph(image)
 print(glyph_graph.nodes, glyph_graph.chains, glyph_graph.relations)
 print(glyph_graph.records)  # rectangular cells or compound record groups
+
+# A record-only review image omits glyph-node clutter.
+draw_record_graph(image, glyph_graph).save("page.records.jpg")
 ```
 
 ## Command line
@@ -90,7 +94,8 @@ digitalization-layout page.jpg \
   --content-graph-output page.content.json \
   --content-graph-overlay page.content.jpg \
   --glyph-graph-output page.glyphs.json \
-  --glyph-graph-overlay page.glyphs.jpg
+  --glyph-graph-overlay page.glyphs.jpg \
+  --record-graph-overlay page.records.jpg
 ```
 
 The JSON contains both the hierarchy and a flattened list of ordered leaf IDs.
@@ -117,6 +122,9 @@ The current development version combines:
 - repeated local primary-stream pitch for grouping mixed-size record cells
 - local glyph reconstruction and within-band multi-scale classification
 - separate continuation, annotation, and next-record relations
+- same-axis attachment of annotations immediately above or below a primary chain
+- record-boundary gaps that cannot be bridged by an unusually large glyph
+- record-order edges inferred inside local bands after record grouping
 - rectangular cells for regular records and compound groups for irregular records
 - cumulative-drift constraints that stop tracks migrating into adjacent columns
 - horizontal-rule barriers that prevent content tracks from crossing major sections

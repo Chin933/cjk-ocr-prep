@@ -33,6 +33,7 @@ from .glyph_graph import (
     GlyphRelation,
     detect_glyph_graph,
     draw_glyph_graph,
+    draw_record_graph,
 )
 
 __all__ = [
@@ -58,6 +59,7 @@ __all__ = [
     "detect_glyph_graph",
     "draw_content_graph",
     "draw_glyph_graph",
+    "draw_record_graph",
     "detect_layout",
     "detect_region_graph",
     "detect_rule_graph",
