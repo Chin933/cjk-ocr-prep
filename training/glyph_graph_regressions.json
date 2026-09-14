@@ -1,0 +1,21 @@
+{
+  "records": [
+    {
+      "image": "archive_141_p0051.jpg",
+      "node_count": [300, 550],
+      "chain_count": [60, 160],
+      "max_wide_large_chains": 0,
+      "barrier": {"top_y": 230, "bottom_y": 260, "max_crossings": 0}
+    },
+    {
+      "image": "archive_113_p0054.jpg",
+      "node_count": [400, 650],
+      "chain_count": [180, 350],
+      "max_wide_large_chains": 0,
+      "barrier": {"top_y": 530, "bottom_y": 590, "max_crossings": 0},
+      "upper": {"start_y": 202, "end_y": 558, "min_small": 60, "min_large": 30},
+      "lower": {"start_y": 566, "end_y": 1170, "min_small": 120, "min_large": 70},
+      "relations": {"min_annotates": 60, "min_next_record": 2}
+    }
+  ]
+}

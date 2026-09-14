@@ -82,7 +82,7 @@ python training/synthetic_benchmark.py \
 
 ## Current seed result
 
-On the two PowerPoint pages, version `1.4.0.dev0` currently reaches 98.57%
+On the two PowerPoint pages, version `1.5.0.dev0` currently reaches 98.57%
 pairwise reading-order accuracy. IoU@0.50 recall is 90.00% for blocks, 82.86%
 for major columns, and 50.00% for local subcolumns. Recovering parent columns
 around narrow aligned half-lanes raises major-column IoU@0.75 recall from
@@ -130,3 +130,12 @@ contains overlapping large-name streams, smaller annotation columns, and
 streams that begin and end at different heights. Its current regression guards
 against reintroducing gross multi-column merges while the 2-D grouping model is
 developed.
+
+Version 1.5 adds a lower-level glyph-instance graph for mixed-size fields. It
+uses a glyph-safe rule-removal scale, separates tiny fragments before local
+size clustering, smooths size labels along nearby vertical neighbours, splits
+horizontally fused multi-glyph components at supported ink valleys, and caps
+cumulative horizontal drift in a chain. Continuation, annotation, and
+next-record edges remain separate in the serialized graph. These invariants
+are run with `training/evaluate_glyph_graph.py`; they are structural guards,
+not a substitute for manually reviewed relation precision and reading order.

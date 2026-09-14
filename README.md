@@ -46,6 +46,7 @@ pip install -e ".[dev]"
 from PIL import Image
 from digitalization import (
     detect_content_graph,
+    detect_glyph_graph,
     detect_layout,
     detect_region_graph,
     detect_rule_graph,
@@ -69,6 +70,10 @@ print(region_graph.cells)
 # Local ink observations are linked into bounded vertical text streams.
 content_graph = detect_content_graph(image)
 print(content_graph.streams, content_graph.edges)
+
+# Mixed-size fields expose glyph instances and typed structural relations.
+glyph_graph = detect_glyph_graph(image)
+print(glyph_graph.nodes, glyph_graph.chains, glyph_graph.relations)
 ```
 
 ## Command line
@@ -82,7 +87,9 @@ digitalization-layout page.jpg \
   --region-graph-output page.regions.json \
   --region-graph-overlay page.regions.jpg \
   --content-graph-output page.content.json \
-  --content-graph-overlay page.content.jpg
+  --content-graph-overlay page.content.jpg \
+  --glyph-graph-output page.glyphs.json \
+  --glyph-graph-overlay page.glyphs.jpg
 ```
 
 The JSON contains both the hierarchy and a flattened list of ordered leaf IDs.
@@ -107,6 +114,9 @@ The current development version combines:
 - glyph-support intersection and connected-component topology for short local subcolumns
 - bottom-up multi-scale lane observations linked into bounded vertical text streams
 - repeated local primary-stream pitch for grouping mixed-size record cells
+- local glyph reconstruction and within-band multi-scale classification
+- separate continuation, annotation, and next-record relations
+- cumulative-drift constraints that stop tracks migrating into adjacent columns
 - horizontal-rule barriers that prevent content tracks from crossing major sections
 - content-stream adjacency, attachment relations, and explicit reading edges
 - page-shape gating so a portrait centre rule is not mistaken for a two-page gutter
@@ -121,7 +131,7 @@ It is not part of the production detector.
 
 ## Development status
 
-Version `1.4.0.dev0` is an active layout-tree/content-graph prototype. The two-page seed
+Version `1.5.0.dev0` is an active layout-tree/content-graph prototype. The two-page seed
 benchmark currently reaches 98.57% pairwise reading-order accuracy, 82.86%
 major-column recall, and 50.00% local-subcolumn recall at IoU 0.50. See
 [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for metrics, limitations, and the

@@ -25,11 +25,23 @@ from .content_graph import (
     detect_content_graph,
     draw_content_graph,
 )
+from .glyph_graph import (
+    GlyphChain,
+    GlyphGraph,
+    GlyphNode,
+    GlyphRelation,
+    detect_glyph_graph,
+    draw_glyph_graph,
+)
 
 __all__ = [
     "Box",
     "ContentEdge",
     "ContentGraph",
+    "GlyphChain",
+    "GlyphGraph",
+    "GlyphNode",
+    "GlyphRelation",
     "LayoutConfig",
     "LayoutDocument",
     "LayoutNode",
@@ -41,7 +53,9 @@ __all__ = [
     "RuleSegment",
     "TextStream",
     "detect_content_graph",
+    "detect_glyph_graph",
     "draw_content_graph",
+    "draw_glyph_graph",
     "detect_layout",
     "detect_region_graph",
     "detect_rule_graph",
@@ -49,4 +63,4 @@ __all__ = [
     "draw_region_graph",
     "draw_rule_graph",
 ]
-__version__ = "1.4.0.dev0"
+__version__ = "1.5.0.dev0"

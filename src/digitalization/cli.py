@@ -9,6 +9,7 @@ from pathlib import Path
 from PIL import Image
 
 from .content_graph import detect_content_graph, draw_content_graph
+from .glyph_graph import detect_glyph_graph, draw_glyph_graph
 from .layout import (
     detect_layout,
     detect_region_graph,
@@ -33,6 +34,8 @@ def main() -> None:
     parser.add_argument("--region-graph-overlay", type=Path)
     parser.add_argument("--content-graph-output", type=Path)
     parser.add_argument("--content-graph-overlay", type=Path)
+    parser.add_argument("--glyph-graph-output", type=Path)
+    parser.add_argument("--glyph-graph-overlay", type=Path)
     args = parser.parse_args()
 
     with Image.open(args.image) as source:
@@ -78,6 +81,17 @@ def main() -> None:
         if args.content_graph_overlay:
             args.content_graph_overlay.parent.mkdir(parents=True, exist_ok=True)
             draw_content_graph(image, content_graph).save(args.content_graph_overlay)
+    if args.glyph_graph_output or args.glyph_graph_overlay:
+        glyph_graph = detect_glyph_graph(image)
+        if args.glyph_graph_output:
+            args.glyph_graph_output.parent.mkdir(parents=True, exist_ok=True)
+            args.glyph_graph_output.write_text(
+                json.dumps(glyph_graph.to_dict(), ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        if args.glyph_graph_overlay:
+            args.glyph_graph_overlay.parent.mkdir(parents=True, exist_ok=True)
+            draw_glyph_graph(image, glyph_graph).save(args.glyph_graph_overlay)
 
     print(
         f"pages={len(result.root.children)} "
