@@ -726,18 +726,32 @@ def draw_content_graph(
         for observation in graph.observations:
             draw.rectangle(observation.bbox.as_list(), outline="#b8e0d2", width=1)
     by_id = {stream.id: stream for stream in graph.streams}
+    role_style = {
+        "text": ("#0077b6", 2),
+        "satellite": ("#f77f00", 2),
+        "rule_fragment": ("#6c757d", 1),
+        "noise": ("#adb5bd", 1),
+    }
     for stream in graph.streams:
-        draw.rectangle(stream.bbox.as_list(), outline="#0077b6", width=2)
-        draw.line(
-            (stream.center_x, stream.bbox.y1, stream.center_x, stream.bbox.y2),
-            fill="#00b4d8",
-            width=1,
-        )
-        draw.text((stream.bbox.x1, stream.bbox.y1), str(stream.order), fill="#d00000")
+        color, width = role_style[stream.role]
+        draw.rectangle(stream.bbox.as_list(), outline=color, width=width)
+        if stream.role in {"text", "satellite"}:
+            draw.line(
+                (stream.center_x, stream.bbox.y1, stream.center_x, stream.bbox.y2),
+                fill=color,
+                width=1,
+            )
+        if stream.order is not None:
+            draw.text(
+                (stream.bbox.x1, stream.bbox.y1), str(stream.order), fill="#d00000"
+            )
+        elif stream.role == "satellite":
+            draw.text((stream.bbox.x1, stream.bbox.y1), "S", fill="#f77f00")
     for edge in graph.edges:
         source, target = by_id[edge.source], by_id[edge.target]
         y = max(source.bbox.y1, target.bbox.y1) + 6
-        draw.line((source.center_x, y, target.center_x, y), fill="#ff9f1c", width=2)
+        color = "#f77f00" if edge.relation == "attaches_to" else "#2a9d8f"
+        draw.line((source.center_x, y, target.center_x, y), fill=color, width=2)
     for group in graph.groups:
         draw.rectangle(group.bbox.as_list(), outline="#8338ec", width=2)
         draw.text(
