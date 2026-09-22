@@ -22,3 +22,6 @@ models/paddlex/
 .ipynb_checkpoints/
 .venv/
 venv/
+build/
+dist/
+*.egg-info/

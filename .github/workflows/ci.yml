@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest
+      - name: Stress-test complex layouts and reading order
+        run: >-
+          python training/synthetic_benchmark.py
+          --output synthetic-benchmark.json
+          --cases 20
+          --min-region-recall 0.70
+          --min-order-accuracy 0.90
+          --min-template-recall 0.50
+          --min-template-order 0.88
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-layout-benchmark
+          path: synthetic-benchmark.json

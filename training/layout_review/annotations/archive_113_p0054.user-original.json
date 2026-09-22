@@ -1,0 +1,1678 @@
+{
+  "schema_version": "layout-review-v1",
+  "image": {
+    "name": "archive_113_p0054.jpg",
+    "width": 872,
+    "height": 1280
+  },
+  "scope": null,
+  "coverage_complete": false,
+  "elements": [
+    {
+      "id": "e_a0c18350",
+      "role": "annotation",
+      "boxes": [
+        [
+          708,
+          240,
+          762,
+          368
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_5e5081b3",
+      "role": "annotation",
+      "boxes": [
+        [
+          599,
+          242,
+          661,
+          367
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_1cc3875b",
+      "role": "annotation",
+      "boxes": [
+        [
+          658,
+          461,
+          709,
+          555
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_34823285",
+      "role": "annotation",
+      "boxes": [
+        [
+          550,
+          459,
+          605,
+          550
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_444176db",
+      "role": "annotation",
+      "boxes": [
+        [
+          495,
+          240,
+          552,
+          374
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_59a94c7b",
+      "role": "annotation",
+      "boxes": [
+        [
+          454,
+          495,
+          497,
+          563
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_0ac69dea",
+      "role": "annotation",
+      "boxes": [
+        [
+          397,
+          245,
+          453,
+          465
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_3b3ba768",
+      "role": "annotation",
+      "boxes": [
+        [
+          350,
+          431,
+          397,
+          564
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_739bcca1",
+      "role": "annotation",
+      "boxes": [
+        [
+          292,
+          241,
+          350,
+          463
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_74a11a5f",
+      "role": "annotation",
+      "boxes": [
+        [
+          246,
+          431,
+          297,
+          563
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_7c1a154b",
+      "role": "annotation",
+      "boxes": [
+        [
+          195,
+          245,
+          250,
+          369
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_6005a76b",
+      "role": "annotation",
+      "boxes": [
+        [
+          147,
+          464,
+          196,
+          563
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_dac4bdd7",
+      "role": "annotation",
+      "boxes": [
+        [
+          101,
+          247,
+          147,
+          474
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_4d66cf9c",
+      "role": "primary",
+      "boxes": [
+        [
+          708,
+          809,
+          762,
+          967
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_a4fa8d89",
+      "role": "primary",
+      "boxes": [
+        [
+          601,
+          208,
+          708,
+          550
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_6ec50e0d",
+      "role": "primary",
+      "boxes": [
+        [
+          493,
+          209,
+          602,
+          556
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_5c58f350",
+      "role": "primary",
+      "boxes": [
+        [
+          398,
+          211,
+          492,
+          558
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_1613e997",
+      "role": "primary",
+      "boxes": [
+        [
+          299,
+          212,
+          400,
+          550
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_a80dc8fa",
+      "role": "primary",
+      "boxes": [
+        [
+          193,
+          216,
+          297,
+          554
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_d24974bb",
+      "role": "primary",
+      "boxes": [
+        [
+          101,
+          213,
+          195,
+          557
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_12bf63dd",
+      "role": "primary",
+      "boxes": [
+        [
+          710,
+          583,
+          761,
+          646
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_5d9aa5a7",
+      "role": "primary",
+      "boxes": [
+        [
+          713,
+          646,
+          766,
+          808
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_c7fa0fb3",
+      "role": "primary",
+      "boxes": [
+        [
+          713,
+          967,
+          763,
+          1044
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_96a67935",
+      "role": "primary",
+      "boxes": [
+        [
+          716,
+          1048,
+          768,
+          1136
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_b1723ebd",
+      "role": "primary",
+      "boxes": [
+        [
+          655,
+          583,
+          714,
+          681
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_ddceb389",
+      "role": "primary",
+      "boxes": [
+        [
+          662,
+          682,
+          711,
+          728
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_bd6c49a3",
+      "role": "primary",
+      "boxes": [
+        [
+          662,
+          745,
+          708,
+          821
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_208f50ab",
+      "role": "primary",
+      "boxes": [
+        [
+          660,
+          831,
+          715,
+          1065
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_77d1b34c",
+      "role": "primary",
+      "boxes": [
+        [
+          662,
+          1064,
+          715,
+          1133
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_13a3d318",
+      "role": "primary",
+      "boxes": [
+        [
+          603,
+          585,
+          665,
+          782
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_e52afe03",
+      "role": "primary",
+      "boxes": [
+        [
+          604,
+          778,
+          661,
+          966
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_1d512c2e",
+      "role": "primary",
+      "boxes": [
+        [
+          612,
+          968,
+          658,
+          1063
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_4376e868",
+      "role": "primary",
+      "boxes": [
+        [
+          612,
+          1065,
+          663,
+          1164
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_511c005d",
+      "role": "primary",
+      "boxes": [
+        [
+          552,
+          590,
+          605,
+          685
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_148f0b4c",
+      "role": "primary",
+      "boxes": [
+        [
+          548,
+          687,
+          607,
+          773
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_76fc18de",
+      "role": "primary",
+      "boxes": [
+        [
+          557,
+          779,
+          603,
+          821
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_c91b234b",
+      "role": "primary",
+      "boxes": [
+        [
+          557,
+          837,
+          614,
+          964
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_46b6a20b",
+      "role": "primary",
+      "boxes": [
+        [
+          554,
+          964,
+          612,
+          1010
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_61c83dcd",
+      "role": "primary",
+      "boxes": [
+        [
+          565,
+          1021,
+          602,
+          1106
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_e4b04a83",
+      "role": "primary",
+      "boxes": [
+        [
+          565,
+          1122,
+          609,
+          1165
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_03619d96",
+      "role": "primary",
+      "boxes": [
+        [
+          499,
+          581,
+          556,
+          784
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_e579cd6d",
+      "role": "annotation",
+      "boxes": [
+        [
+          710,
+          614,
+          762,
+          643
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_3eb6b410",
+      "role": "annotation",
+      "boxes": [
+        [
+          709,
+          681,
+          762,
+          805
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_9806a75d",
+      "role": "annotation",
+      "boxes": [
+        [
+          718,
+          874,
+          762,
+          963
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_aad2b9c4",
+      "role": "annotation",
+      "boxes": [
+        [
+          666,
+          649,
+          713,
+          677
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_e1fefaf0",
+      "role": "annotation",
+      "boxes": [
+        [
+          609,
+          653,
+          661,
+          772
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_91e1ab7d",
+      "role": "annotation",
+      "boxes": [
+        [
+          610,
+          842,
+          663,
+          956
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_fa8f6161",
+      "role": "annotation",
+      "boxes": [
+        [
+          661,
+          905,
+          709,
+          1058
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_391701c3",
+      "role": "annotation",
+      "boxes": [
+        [
+          612,
+          1031,
+          662,
+          1061
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_9308dc1c",
+      "role": "annotation",
+      "boxes": [
+        [
+          612,
+          1130,
+          661,
+          1170
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_cbba3c0e",
+      "role": "annotation",
+      "boxes": [
+        [
+          555,
+          595,
+          607,
+          683
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_52559cfc",
+      "role": "annotation",
+      "boxes": [
+        [
+          559,
+          905,
+          613,
+          959
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_c8a35e07",
+      "role": "annotation",
+      "boxes": [
+        [
+          504,
+          623,
+          557,
+          783
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_1e4a23cc",
+      "role": "annotation",
+      "boxes": [
+        [
+          504,
+          845,
+          555,
+          994
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_1c4d5926",
+      "role": "annotation",
+      "boxes": [
+        [
+          506,
+          1069,
+          557,
+          1162
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_ffffa2d2",
+      "role": "annotation",
+      "boxes": [
+        [
+          455,
+          592,
+          503,
+          619
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_ffb0692f",
+      "role": "annotation",
+      "boxes": [
+        [
+          453,
+          683,
+          502,
+          720
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_f102f25f",
+      "role": "annotation",
+      "boxes": [
+        [
+          453,
+          786,
+          502,
+          1162
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_00f4c9f8",
+      "role": "annotation",
+      "boxes": [
+        [
+          398,
+          591,
+          450,
+          685
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_dc09fe57",
+      "role": "annotation",
+      "boxes": [
+        [
+          403,
+          755,
+          454,
+          998
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_fa26d7b6",
+      "role": "annotation",
+      "boxes": [
+        [
+          409,
+          1061,
+          455,
+          1102
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_689bf0ed",
+      "role": "annotation",
+      "boxes": [
+        [
+          348,
+          592,
+          398,
+          814
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_87c23a99",
+      "role": "annotation",
+      "boxes": [
+        [
+          350,
+          881,
+          402,
+          935
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_74b3d3b3",
+      "role": "annotation",
+      "boxes": [
+        [
+          354,
+          1001,
+          400,
+          1165
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_a3e27487",
+      "role": "annotation",
+      "boxes": [
+        [
+          299,
+          592,
+          354,
+          1065
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_2c4c5f01",
+      "role": "annotation",
+      "boxes": [
+        [
+          248,
+          659,
+          301,
+          693
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_12418900",
+      "role": "annotation",
+      "boxes": [
+        [
+          248,
+          757,
+          303,
+          920
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_937237c9",
+      "role": "annotation",
+      "boxes": [
+        [
+          199,
+          696,
+          241,
+          749
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_5268656b",
+      "role": "annotation",
+      "boxes": [
+        [
+          195,
+          821,
+          247,
+          849
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_887fd22d",
+      "role": "annotation",
+      "boxes": [
+        [
+          151,
+          665,
+          200,
+          788
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_dcba9273",
+      "role": "annotation",
+      "boxes": [
+        [
+          153,
+          850,
+          195,
+          881
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_7d10d77f",
+      "role": "annotation",
+      "boxes": [
+        [
+          151,
+          943,
+          196,
+          1006
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_4bd3834b",
+      "role": "annotation",
+      "boxes": [
+        [
+          151,
+          1070,
+          195,
+          1097
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_49f6cf89",
+      "role": "annotation",
+      "boxes": [
+        [
+          152,
+          1138,
+          197,
+          1170
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_23cbd414",
+      "role": "annotation",
+      "boxes": [
+        [
+          98,
+          593,
+          149,
+          819
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_70b86318",
+      "role": "annotation",
+      "boxes": [
+        [
+          94,
+          849,
+          149,
+          1097
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_15db5364",
+      "role": "primary",
+      "boxes": [
+        [
+          504,
+          783,
+          557,
+          999
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_026709b2",
+      "role": "primary",
+      "boxes": [
+        [
+          509,
+          999,
+          557,
+          1162
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_653a9f04",
+      "role": "primary",
+      "boxes": [
+        [
+          453,
+          590,
+          499,
+          619
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_e20c6581",
+      "role": "primary",
+      "boxes": [
+        [
+          451,
+          617,
+          502,
+          724
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_4aad8162",
+      "role": "primary",
+      "boxes": [
+        [
+          458,
+          723,
+          502,
+          1167
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_c1770969",
+      "role": "primary",
+      "boxes": [
+        [
+          397,
+          595,
+          450,
+          687
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_7e61714e",
+      "role": "primary",
+      "boxes": [
+        [
+          397,
+          685,
+          453,
+          998
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_cbe63215",
+      "role": "primary",
+      "boxes": [
+        [
+          396,
+          996,
+          455,
+          1097
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_8f23b5be",
+      "role": "primary",
+      "boxes": [
+        [
+          401,
+          1101,
+          456,
+          1165
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_96b1d2b9",
+      "role": "primary",
+      "boxes": [
+        [
+          345,
+          592,
+          397,
+          814
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_a991447b",
+      "role": "primary",
+      "boxes": [
+        [
+          352,
+          814,
+          398,
+          932
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_965d7020",
+      "role": "primary",
+      "boxes": [
+        [
+          353,
+          936,
+          400,
+          1165
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_76307966",
+      "role": "primary",
+      "boxes": [
+        [
+          299,
+          592,
+          348,
+          1069
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_ea5fb64b",
+      "role": "primary",
+      "boxes": [
+        [
+          300,
+          1064,
+          356,
+          1155
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_38761016",
+      "role": "primary",
+      "boxes": [
+        [
+          249,
+          595,
+          296,
+          691
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_080c8d90",
+      "role": "primary",
+      "boxes": [
+        [
+          247,
+          694,
+          299,
+          922
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_ea2f51a4",
+      "role": "primary",
+      "boxes": [
+        [
+          199,
+          569,
+          247,
+          755
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_602fcdde",
+      "role": "primary",
+      "boxes": [
+        [
+          197,
+          749,
+          247,
+          851
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_e8554b64",
+      "role": "primary",
+      "boxes": [
+        [
+          153,
+          571,
+          193,
+          792
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_c63fafb4",
+      "role": "primary",
+      "boxes": [
+        [
+          154,
+          788,
+          197,
+          883
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_d40885d8",
+      "role": "primary",
+      "boxes": [
+        [
+          156,
+          885,
+          196,
+          1001
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_f54178e4",
+      "role": "primary",
+      "boxes": [
+        [
+          152,
+          1009,
+          199,
+          1094
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_edffaa54",
+      "role": "primary",
+      "boxes": [
+        [
+          153,
+          1099,
+          201,
+          1168
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_f9bfea10",
+      "role": "primary",
+      "boxes": [
+        [
+          98,
+          588,
+          144,
+          820
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_56f5aed7",
+      "role": "primary",
+      "boxes": [
+        [
+          96,
+          823,
+          156,
+          1100
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_471cab6c",
+      "role": "primary",
+      "boxes": [
+        [
+          95,
+          1107,
+          148,
+          1174
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_01ac01d3",
+      "role": "region",
+      "boxes": [
+        [
+          99,
+          215,
+          763,
+          558
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    },
+    {
+      "id": "e_4e2c981f",
+      "role": "region",
+      "boxes": [
+        [
+          96,
+          565,
+          762,
+          1183
+        ]
+      ],
+      "transcription": "",
+      "parent_id": null,
+      "review": "draft",
+      "note": ""
+    }
+  ],
+  "relations": [],
+  "exported_at": "2026-09-15T11:25:49.006Z"
+}

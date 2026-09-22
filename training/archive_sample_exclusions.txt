@@ -1,0 +1,19 @@
+# Known catalogue/index pages outside the target document-page distribution.
+# Format: PDF stem,page number (one-based, matching archive report filenames).
+1,193
+1,339
+1,47
+85,54
+141,367
+183,219
+183,386
+197,215
+211,386
+225,393
+239,219
+295,51
+323,193
+351,47
+351,337
+379,50
+267,201
