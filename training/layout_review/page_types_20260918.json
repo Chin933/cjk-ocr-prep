@@ -1,0 +1,18 @@
+{
+  "provenance": "Page-level routing labels from user descriptions and assistant visual inspection; not human box ground truth or an automatic classification benchmark.",
+  "pages": [
+    {"image":"archive_127_p0056","kind":"personal_biography","case":"oversize_name"},
+    {"image":"archive_085_p0221","kind":"exam","case":"sparse_examiner_titles"},
+    {"image":"archive_099_p0054","kind":"exam","case":"two_register_exam_metadata_open_frame"},
+    {"image":"archive_015_p0055","kind":"essay","case":"regular_circles_and_side_comment"},
+    {"image":"archive_420_p0387","kind":"essay","case":"irregular_ink_marks"},
+    {"image":"archive_113_p0054","kind":"associate_biography","case":"user_gold_fit_check"},
+    {"image":"archive_029_p0237","kind":"associate_biography","case":"short_notes_and_main_radicals"},
+    {"image":"archive_155_p0396","kind":"associate_biography","case":"faint_print_and_note_edges"},
+    {"image":"archive_085_p0223","kind":"essay","case":"unpunctuated_continuous_text"},
+    {"image":"archive_127_p0058","kind":"associate_biography","case":"dense_notes"},
+    {"image":"archive_015_p0057","kind":"poem","case":"uneven_lines_title_author"},
+    {"image":"archive_420_p0386","kind":"essay","case":"ink_touching_characters"},
+    {"image":"archive_113_p0219","kind":"associate_biography","case":"dense_lower_register"}
+  ]
+}
