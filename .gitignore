@@ -17,6 +17,7 @@ training/labels/
 # Downloaded/generated model weights
 *.pt
 models/paddlex/
+.modal-examples/
 
 # Local notebooks and environment noise
 .ipynb_checkpoints/
